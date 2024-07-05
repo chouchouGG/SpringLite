@@ -1,7 +1,7 @@
 package cn.learn.factory.support;
 
 import cn.learn.factory.config.BeanDefinition;
-import cn.learn.factory.exception.BeansException;
+import cn.learn.exception.BeansException;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package cn.learn.factory.exception;
+package cn.learn.exception;
 
 public class BeansException extends RuntimeException {
 
