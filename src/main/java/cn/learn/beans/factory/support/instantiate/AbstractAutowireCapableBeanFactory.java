@@ -1,9 +1,12 @@
-package cn.learn.factory.support;
+package cn.learn.beans.factory.support.instantiate;
 
-import cn.learn.PropertyValue;
-import cn.learn.exception.BeansException;
-import cn.learn.factory.config.BeanDefinition;
-import cn.learn.factory.config.BeanReference;
+import cn.learn.beans.factory.config.PropertyValue;
+import cn.learn.beans.factory.exception.BeansException;
+import cn.learn.beans.factory.config.BeanDefinition;
+import cn.learn.beans.factory.config.BeanReference;
+import cn.learn.beans.factory.support.AbstractBeanFactory;
+import cn.learn.beans.factory.support.instantiate.InstantiationStrategy;
+import cn.learn.beans.factory.support.instantiate.SimpleInstantiationStrategy;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;

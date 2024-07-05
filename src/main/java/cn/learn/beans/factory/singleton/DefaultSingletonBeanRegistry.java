@@ -1,6 +1,4 @@
-package cn.learn.factory.support;
-
-import cn.learn.factory.config.SingletonBeanRegistry;
+package cn.learn.beans.factory.singleton;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,7 +1,7 @@
-package cn.learn.factory.support;
+package cn.learn.beans.factory.support;
 
-import cn.learn.factory.BeanFactory;
-import cn.learn.factory.config.BeanDefinition;
+import cn.learn.beans.factory.config.BeanDefinition;
+import cn.learn.beans.factory.singleton.DefaultSingletonBeanRegistry;
 
 /**
  * @program: SpringLite
@@ -19,6 +19,12 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     @Override
     public Object getBean(String name, Object... args) {
          return doGetBean(name, args);
+    }
+
+    // fixme: 没有使用到requiredType？对吗？
+    @Override
+    public <T> T getBean(String name, Class<T> requiredType) {
+        return (T) getBean(name);
     }
 
     protected <T> T doGetBean(final String name, final Object[] args) {

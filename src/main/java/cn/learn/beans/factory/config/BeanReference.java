@@ -1,4 +1,4 @@
-package cn.learn.factory.config;
+package cn.learn.beans.factory.config;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -2,9 +2,11 @@ package cn.learn;
 
 import cn.learn.bean.UserDao;
 import cn.learn.bean.UserService;
-import cn.learn.factory.config.BeanDefinition;
-import cn.learn.factory.config.BeanReference;
-import cn.learn.factory.support.DefaultListableBeanFactory;
+import cn.learn.beans.factory.config.PropertyValue;
+import cn.learn.beans.factory.config.PropertyValues;
+import cn.learn.beans.factory.config.BeanDefinition;
+import cn.learn.beans.factory.config.BeanReference;
+import cn.learn.beans.factory.DefaultListableBeanFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 

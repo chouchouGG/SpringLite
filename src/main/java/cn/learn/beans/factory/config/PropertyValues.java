@@ -1,4 +1,4 @@
-package cn.learn;
+package cn.learn.beans.factory.config;
 
 
 import java.util.ArrayList;

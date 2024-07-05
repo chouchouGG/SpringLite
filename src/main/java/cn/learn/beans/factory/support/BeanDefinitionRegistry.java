@@ -1,6 +1,6 @@
-package cn.learn.factory.support;
+package cn.learn.beans.factory.support;
 
-import cn.learn.factory.config.BeanDefinition;
+import cn.learn.beans.factory.config.BeanDefinition;
 
 /**
  * @program: SpringLite

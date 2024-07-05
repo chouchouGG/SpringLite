@@ -1,7 +1,7 @@
-package cn.learn.factory.support;
+package cn.learn.beans.factory.support.instantiate;
 
-import cn.learn.factory.config.BeanDefinition;
-import cn.learn.exception.BeansException;
+import cn.learn.beans.factory.config.BeanDefinition;
+import cn.learn.beans.factory.exception.BeansException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

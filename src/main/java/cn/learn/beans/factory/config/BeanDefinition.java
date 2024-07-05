@@ -1,6 +1,5 @@
-package cn.learn.factory.config;
+package cn.learn.beans.factory.config;
 
-import cn.learn.PropertyValues;
 import lombok.Getter;
 import lombok.Setter;
 
