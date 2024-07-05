@@ -1,27 +1,22 @@
 package cn.learn.bean;
 
-/**
- * 作者：DerekYRC https://github.com/DerekYRC/mini-spring
+import lombok.Getter;
+import lombok.Setter;
 
-https://github.com/DerekYRC/mini-spring
-https://github.com/code4craft/tiny-spring
- */
+
+@Getter
+@Setter
 public class UserService {
 
 
-    private String name;
+    private String uId;
 
-    public UserService(String name) {
-        this.name = name;
-    }
+    // 模拟Dao数据访问层
+    private UserDao userDao;
 
     public void queryUserInfo() {
-        System.out.println("查询用户信息：" + name);
+        System.out.println("查询用户信息：" + userDao.queryUserName(uId));
     }
 
-    @Override
-    public String toString() {
-        return "" + name;
-    }
 
 }

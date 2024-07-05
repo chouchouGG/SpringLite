@@ -1,27 +1,31 @@
 package cn.learn.factory.config;
 
+import cn.learn.PropertyValues;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * @program: SpringLite
- * @description:
+ * @description: 包装注册到容器中的信息
  * @author: chouchouGG
  * @create: 2024-07-04 17:52
  **/
-public class BeanDefinition {
+@Getter
+@Setter
+public class            BeanDefinition {
 
     private Class beanClass;
 
-    // 构造方法
+    private PropertyValues propertyValues;
+
     public BeanDefinition(Class beanClass) {
         this.beanClass = beanClass;
+        this.propertyValues = new PropertyValues();
     }
 
-    // Getter
-    public Class getBeanClass() {
-        return beanClass;
-    }
-
-    // Setter
-    public void setBeanClass(Class beanClass) {
+    public BeanDefinition(Class beanClass, PropertyValues propertyValues) {
         this.beanClass = beanClass;
+        this.propertyValues = (propertyValues == null) ? new PropertyValues() : propertyValues;
     }
+
 }
