@@ -1,12 +1,13 @@
 package cn.learn.beans.factory.support.instantiate;
 
-import cn.learn.beans.factory.config.PropertyValue;
-import cn.learn.beans.factory.exception.BeansException;
+import cn.hutool.core.bean.BeanUtil;
 import cn.learn.beans.factory.config.BeanDefinition;
 import cn.learn.beans.factory.config.BeanReference;
+import cn.learn.beans.factory.config.PropertyValue;
+import cn.learn.beans.factory.exception.BeansException;
 import cn.learn.beans.factory.support.AbstractBeanFactory;
-import cn.learn.beans.factory.support.instantiate.InstantiationStrategy;
-import cn.learn.beans.factory.support.instantiate.SimpleInstantiationStrategy;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -18,18 +19,12 @@ import java.util.Arrays;
  * @author: chouchouGG
  * @create: 2024-07-05 00:59
  **/
+@Getter
+@Setter
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory {
 
     // 策略模式：默认使用【简单实例化策略】
     private InstantiationStrategy instantiationStrategy = new SimpleInstantiationStrategy();
-
-    public InstantiationStrategy getInstantiationStrategy() {
-        return instantiationStrategy;
-    }
-
-    public void setInstantiationStrategy(InstantiationStrategy instantiationStrategy) {
-        this.instantiationStrategy = instantiationStrategy;
-    }
 
     /**
      *  问：newInstance() 实例化方式并没有考虑带参构造函数的入参，怎么去实例化含有构造函数的对象？
@@ -94,10 +89,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                     value = getBean(beanReference.getBeanName());
                 }
                 // 属性填充
-                Class clazz = beanDefinition.getBeanClass();
-                Field field = clazz.getDeclaredField(name);
-                field.setAccessible(true);
-                field.set(bean, value);
+//                Class clazz = beanDefinition.getBeanClass();
+//                Field field = clazz.getDeclaredField(name);
+//                field.setAccessible(true);
+//                field.set(bean, value);
+                BeanUtil.setFieldValue(bean, name, value);
             }
         } catch (Exception e) {
             throw new BeansException("配置属性值错误：" + beanName);

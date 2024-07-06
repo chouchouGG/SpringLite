@@ -11,7 +11,7 @@ import lombok.Setter;
  **/
 @Getter
 @Setter
-public class            BeanDefinition {
+public class BeanDefinition {
 
     private Class beanClass;
 

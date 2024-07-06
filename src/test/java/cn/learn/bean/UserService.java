@@ -11,6 +11,8 @@ public class UserService {
 
     private String uId;
 
+    private Integer age;
+
     // 模拟Dao数据访问层
     private UserDao userDao;
 
@@ -18,5 +20,8 @@ public class UserService {
         System.out.println("查询用户信息：" + userDao.queryUserName(uId));
     }
 
-
+    @Override
+    public String toString() {
+        return "UserService{" + "uId='" + uId + '\'' + ", age=" + age + ", userDao=" + userDao + '}';
+    }
 }
