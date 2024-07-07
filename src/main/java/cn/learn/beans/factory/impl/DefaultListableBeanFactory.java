@@ -1,12 +1,13 @@
-package cn.learn.beans.factory.support;
+package cn.learn.beans.factory.impl;
 
-import cn.learn.beans.factory.config.BeanDefinition;
-import cn.learn.beans.factory.exception.BeansException;
+import cn.learn.beans.entity.BeanDefinition;
+import cn.learn.beans.exception.BeansException;
+import cn.learn.beans.factory.ConfigurableListableBeanFactory;
 import cn.learn.beans.factory.support.registry.BeanDefinitionRegistry;
-import cn.learn.beans.factory.support.instantiate.AbstractAutowireCapableBeanFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @program: SpringLite
@@ -14,10 +15,12 @@ import java.util.Map;
  * @author: chouchouGG
  * @create: 2024-07-05 07:23
  **/
-public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements BeanDefinitionRegistry, ConfigurableListableBeanFactory {
+public class DefaultListableBeanFactory extends  AbstractAutowireCapableBeanFactory
+        implements BeanDefinitionRegistry, ConfigurableListableBeanFactory {
 
     private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
 
+    // note: DefaultListableBeanFactory 拥有 BeanDefinition 的注册能力（由于实现了 BeanDefinitionRefistry 接口）
     @Override
     public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
         beanDefinitionMap.put(beanName, beanDefinition);
@@ -31,12 +34,13 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     @Override
     public <T> Map<String, T> getBeansOfType(Class<T> type) throws BeansException {
         Map<String, T> result = new HashMap<>();
-        beanDefinitionMap.forEach((beanName, beanDefinition) -> {
-            Class beanClass = beanDefinition.getBeanClass();
+        for (Map.Entry<String, BeanDefinition> entry : beanDefinitionMap.entrySet()) {
+            String beanName = entry.getKey();
+            Class<?> beanClass = entry.getValue().getBeanClass();
             if (type.isAssignableFrom(beanClass)) {
                 result.put(beanName, (T) getBean(beanName));
             }
-        });
+        }
         return result;
     }
 
@@ -52,6 +56,14 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
             throw new BeansException("没有命名为 '" + beanName + "' 的Bean被定义");
         }
         return beanDefinition;
+    }
+
+    @Override
+    public void preInstantiateSingletons() throws BeansException {
+        Set<String> beanNames = beanDefinitionMap.keySet();
+        for (String beanName : beanNames) {
+            getBean(beanName);
+        }
     }
 
 }

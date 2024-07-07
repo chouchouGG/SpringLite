@@ -1,6 +1,6 @@
 package cn.learn.beans.factory.support.instantiate;
 
-import cn.learn.beans.factory.config.BeanDefinition;
+import cn.learn.beans.entity.BeanDefinition;
 
 import java.lang.reflect.Constructor;
 

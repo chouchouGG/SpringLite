@@ -1,6 +1,6 @@
 package cn.learn.beans.factory.support.registry;
 
-import cn.learn.beans.factory.config.BeanDefinition;
+import cn.learn.beans.entity.BeanDefinition;
 
 /**
  * @program: SpringLite
@@ -17,14 +17,6 @@ public interface BeanDefinitionRegistry {
      * @param beanDefinition 要注册的 Bean 的定义
      */
     void registerBeanDefinition(String beanName, BeanDefinition beanDefinition);
-
-    /**
-     * 使用Bean名称查询BeanDefinition
-     *
-     * @param beanName
-     * @return
-     */
-    BeanDefinition getBeanDefinition(String beanName);
 
     /**
      * 判断是否包含指定名称的BeanDefinition

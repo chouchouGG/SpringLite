@@ -1,23 +1,31 @@
-package cn.learn.beans.factory.xml;
+package cn.learn.beans.xml;
 
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.XmlUtil;
-import cn.learn.beans.factory.config.BeanDefinition;
-import cn.learn.beans.factory.config.BeanReference;
-import cn.learn.beans.factory.config.PropertyValue;
-import cn.learn.beans.factory.exception.BeansException;
+import cn.learn.beans.entity.BeanDefinition;
+import cn.learn.beans.entity.BeanReference;
+import cn.learn.beans.entity.PropertyValue;
+import cn.learn.beans.exception.BeansException;
 import cn.learn.beans.factory.support.registry.BeanDefinitionRegistry;
 import cn.learn.beans.factory.support.reader.AbstractBeanDefinitionReader;
 import cn.learn.core.io.Resource;
 import cn.learn.core.io.ResourceLoader;
+import lombok.extern.slf4j.Slf4j;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 
+@Slf4j
 public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
+
+    public XmlBeanDefinitionReader(BeanDefinitionRegistry registry) {
+        super(registry);
+    }
 
     public XmlBeanDefinitionReader(BeanDefinitionRegistry registry, ResourceLoader resourceLoader) {
         super(registry, resourceLoader);
@@ -30,6 +38,8 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
         } catch (IOException | ClassNotFoundException e) {
             throw new BeansException("IOException parsing XML document from " + resource, e);
         }
+        // 打印加载的Bean
+        displayBeanDefNames();
     }
 
     @Override
@@ -45,7 +55,18 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
         loadBeanDefinitions(resource);
     }
 
-    protected void doLoadBeanDefinitions(InputStream inputStream) throws ClassNotFoundException {
+    @Override
+    public void loadBeanDefinitions(String... locations) throws BeansException {
+        for (String location : locations) {
+            loadBeanDefinitions(location);
+        }
+    }
+
+    /**
+     * 解析XML格式的Bean配置文件的核心逻辑
+     * @param inputStream 文件的输入流
+     */
+    private void doLoadBeanDefinitions(InputStream inputStream) throws ClassNotFoundException {
         // 1. 读取并解析 XML 文档
         Document doc = XmlUtil.readXML(inputStream);
         // 2. 获取 XML 文档的根元素
@@ -99,12 +120,20 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
                 PropertyValue propertyValue = new PropertyValue(attrName, value);
                 beanDefinition.getPropertyValues().addPropertyValue(propertyValue);
             }
-            if (beanRegistry.containsBeanDefinition(beanName)) {
+            if (super.getBeanRegistry().containsBeanDefinition(beanName)) {
                 throw new BeansException("Duplicate beanName[" + beanName + "] is not allowed");
             }
             // 注册 BeanDefinition
-            beanRegistry.registerBeanDefinition(beanName, beanDefinition);
+            super.getBeanRegistry().registerBeanDefinition(beanName, beanDefinition);
         }
+    }
+
+    /**
+     * 日志处理：负责打印加载的Bean
+     */
+    private void displayBeanDefNames() {
+        String[] names = super.getBeanRegistry().getBeanDefinitionNames();
+        log.info("注册了 {} 个Bean：{}", names.length, ArrayUtil.toString(names));
     }
 
 }

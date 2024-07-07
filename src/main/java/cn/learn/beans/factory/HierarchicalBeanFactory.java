@@ -1,4 +1,4 @@
-package cn.learn.beans.factory.support;
+package cn.learn.beans.factory;
 
 public interface HierarchicalBeanFactory extends BeanFactory {
 }

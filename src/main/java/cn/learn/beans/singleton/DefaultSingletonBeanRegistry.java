@@ -1,4 +1,4 @@
-package cn.learn.beans.factory.singleton;
+package cn.learn.beans.singleton;
 
 import java.util.HashMap;
 import java.util.Map;

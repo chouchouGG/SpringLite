@@ -1,16 +1,17 @@
 package cn.learn;
 
 import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.learn.bean.UserDao;
 import cn.learn.bean.UserService;
-import cn.learn.beans.factory.config.PropertyValue;
-import cn.learn.beans.factory.config.PropertyValues;
-import cn.learn.beans.factory.config.BeanDefinition;
-import cn.learn.beans.factory.config.BeanReference;
-import cn.learn.beans.factory.support.DefaultListableBeanFactory;
-import cn.learn.beans.factory.support.registry.BeanDefinitionRegistry;
-import cn.learn.beans.factory.xml.XmlBeanDefinitionReader;
+import cn.learn.beans.entity.PropertyValue;
+import cn.learn.beans.entity.PropertyValues;
+import cn.learn.beans.entity.BeanDefinition;
+import cn.learn.beans.entity.BeanReference;
+import cn.learn.beans.factory.impl.DefaultListableBeanFactory;
+import cn.learn.beans.xml.XmlBeanDefinitionReader;
+import cn.learn.common.MyBeanFactoryPostProcessor;
+import cn.learn.common.MyBeanPostProcessor;
+import cn.learn.context.impl.ClassPathXmlApplicationContext;
 import cn.learn.core.io.Resource;
 import cn.learn.core.io.impl.DefaultResourceLoader;
 import lombok.extern.slf4j.Slf4j;
@@ -69,19 +70,53 @@ public class ApiTest {
         System.out.println(content);
     }
 
+//    @Test
+//    public void test_xml() {
+//        // 1.初始化 Bean 的注册器和 Bean的加载器
+//        DefaultListableBeanFactory registry = new DefaultListableBeanFactory();
+//        DefaultResourceLoader loader = new DefaultResourceLoader();
+//
+//        // 2. 读取配置文件&注册Bean
+//        XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry, loader);
+//        reader.loadBeanDefinitions("classpath:spring.xml");
+//
+//        // 3. 获取 Bean 对象调用方法
+//        UserService userService = registry.getBean("userService", UserService.class);
+//        System.out.println(userService.toString());
+//        userService.queryUserInfo();
+//    }
+
     @Test
-    public void test_xml() {
-        // 1.初始化 Bean 的注册器和 Bean的加载器
-        DefaultListableBeanFactory registry = new DefaultListableBeanFactory();
-        DefaultResourceLoader loader = new DefaultResourceLoader();
+    public void test_BeanFactoryPostProcessorAndBeanPostProcessor(){
+        // 1.初始化 BeanFactory
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 
         // 2. 读取配置文件&注册Bean
-        XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(registry, loader);
+         XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);
         reader.loadBeanDefinitions("classpath:spring.xml");
 
-        // 3. 获取 Bean 对象调用方法
-        UserService userService = registry.getBean("userService", UserService.class);
-        System.out.println(userService.toString());
-        userService.queryUserInfo();
+        // 3. BeanDefinition 加载完成 & Bean实例化之前，修改 BeanDefinition 的属性值
+        MyBeanFactoryPostProcessor beanFactoryPostProcessor = new MyBeanFactoryPostProcessor();
+        beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
+
+        // 4. Bean实例化之后，修改 Bean 属性信息
+        MyBeanPostProcessor beanPostProcessor = new MyBeanPostProcessor();
+        beanFactory.addBeanPostProcessor(beanPostProcessor);
+
+        // 5. 获取Bean对象调用方法
+        UserService userService = beanFactory.getBean("userService", UserService.class);
+        String result = userService.queryUserInfo();
+        System.out.println("测试结果：" + result);
+    }
+
+    @Test
+    public void test_xml() {
+        // 1.初始化 BeanFactory
+        ClassPathXmlApplicationContext app = new ClassPathXmlApplicationContext("classpath:springPostProcessor.xml");
+
+        // 2. 获取Bean对象调用方法
+        UserService userService = app.getBean("userService", UserService.class);
+        String result = userService.queryUserInfo();
+        System.out.println("测试结果：" + result);
     }
 }

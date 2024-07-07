@@ -11,17 +11,26 @@ public class UserService {
 
     private String uId;
 
-    private Integer age;
+    private String company;
+
+    private String location;
 
     // 模拟Dao数据访问层
     private UserDao userDao;
 
-    public void queryUserInfo() {
-        System.out.println("查询用户信息：" + userDao.queryUserName(uId));
+    public String queryUserInfo() {
+        return "用户名：" + userDao.queryUserName(uId)
+                + ", 公司：" + company
+                + ", 地点：" + location;
     }
 
     @Override
     public String toString() {
-        return "UserService{" + "uId='" + uId + '\'' + ", age=" + age + ", userDao=" + userDao + '}';
+        return "UserService{" +
+                "uId='" + uId + '\'' +
+                ", company='" + company + '\'' +
+                ", location='" + location + '\'' +
+                ", userDao=" + userDao +
+                '}';
     }
 }

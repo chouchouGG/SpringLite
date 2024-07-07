@@ -1,6 +1,6 @@
-package cn.learn.beans.factory.support;
+package cn.learn.beans.factory;
 
-import cn.learn.beans.factory.exception.BeansException;
+import cn.learn.beans.exception.BeansException;
 
 import java.util.Map;
 
@@ -8,7 +8,7 @@ import java.util.Map;
 public interface ListableBeanFactory extends BeanFactory {
 
     /**
-     * 按照类型返回 Bean 实例
+     * 返回与类型 type 匹配的 Bean 实例
      *
      * @param type
      * @param <T>

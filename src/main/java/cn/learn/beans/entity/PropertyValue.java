@@ -1,4 +1,4 @@
-package cn.learn.beans.factory.entity;
+package cn.learn.beans.entity;
 
 /**
  * @program: SpringLite

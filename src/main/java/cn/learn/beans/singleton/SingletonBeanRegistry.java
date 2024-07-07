@@ -1,4 +1,4 @@
-package cn.learn.beans.factory.singleton;
+package cn.learn.beans.singleton;
 
 /**
  * @program: SpringLite
