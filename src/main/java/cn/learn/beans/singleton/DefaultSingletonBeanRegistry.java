@@ -1,7 +1,11 @@
 package cn.learn.beans.singleton;
 
+import cn.learn.beans.DisposableBean;
+import cn.learn.beans.exception.BeansException;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @program: SpringLite
@@ -20,12 +24,13 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
      */
     private final Map<String, Object> singletonObjects = new HashMap<>();
 
+    /**
+     * 销毁方法的具体方法信息被注册到 disposableBeans 中。
+     */
+    private final Map<String, DisposableBean> disposableBeans = new HashMap<>();
 
     /**
      * 从单例缓存中获取单例对象
-     *
-     * @param beanName 要检索的 Bean 的名称
-     * @return 单例对象，如果没有则返回 null
      */
     @Override
     public Object getSingleton(String beanName) {
@@ -34,12 +39,35 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
     /**
      * 将单例对象添加到单例缓存中
-     *
-     * @param beanName Bean 的名称
-     * @param singletonObject 要添加的单例对象
      */
     protected void addSingleton(String beanName, Object singletonObject) {
         singletonObjects.put(beanName, singletonObject);
     }
 
+    /**
+     * 将销毁方法注册到缓存中
+     */
+    public void registerDisposableBean(String beanName, DisposableBean bean) {
+        disposableBeans.put(beanName, bean);
+    }
+
+    /**
+     * 循环调用所有Bean的销毁方法
+     */
+    @Override
+    public void destroySingletons() {
+        Set<String> keySet = disposableBeans.keySet();
+        Object[] disposableBeanNames = keySet.toArray();
+
+        // 按照注册时的逆序调用destory方法
+        for (int i = disposableBeanNames.length - 1; i >= 0; i--) {
+            String beanName = (String) disposableBeanNames[i];
+            DisposableBean disposableBean = disposableBeans.remove(beanName);
+            try {
+                disposableBean.destroy();
+            } catch (Exception e) {
+                throw new BeansException("'" + beanName + "' 的销毁方法产生异常", e);
+            }
+        }
+    }
 }

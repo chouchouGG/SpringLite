@@ -10,9 +10,12 @@ public interface SingletonBeanRegistry {
 
     /**
      * 获取单例对象
-     * @param beanName Bean对象名称
-     * @return Bean对象
      */
     Object getSingleton(String beanName);
+
+    /**
+     * 销毁单例对象
+     */
+    void destroySingletons();
 
 }

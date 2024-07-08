@@ -17,6 +17,10 @@ public class BeanDefinition {
 
     private PropertyValues propertyValues;
 
+    // 这两个字段是为了能在spring.xml的<bean>标签中配置'init-method'和'destory-method'两个属性
+    private String initMethodName;
+    private String destroyMethodName;
+
     public BeanDefinition(Class beanClass) {
         this.beanClass = beanClass;
         this.propertyValues = new PropertyValues();

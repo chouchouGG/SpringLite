@@ -14,4 +14,14 @@ public interface ConfigurableApplicationContext extends ApplicationContext {
      */
     void refresh() throws BeansException;
 
+    /**
+     * 将销毁方法注册为钩子函数，在虚拟机关闭时，自动调用。
+     */
+    void registerShutdownHook();
+
+    /**
+     * 主动调用所有Bean的销毁方法
+     */
+    void close();
+
 }

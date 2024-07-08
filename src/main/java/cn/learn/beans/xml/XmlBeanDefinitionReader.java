@@ -76,21 +76,20 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
         // 循环遍历处理每一个 <bean> 标签
         for (int i = 0; i < childNodes.getLength(); i++) {
-            // 判断当前节点是否是元素节点
-            if (!(childNodes.item(i) instanceof Element)) {
-                continue;
-            }
-            // 判断当前元素节点是否是 <bean> 标签
-            if (!"bean".equals(childNodes.item(i).getNodeName())) {
+            // 若当前节点，非元素节点 / 非 <bean> 标签，则跳过
+            if (!(childNodes.item(i) instanceof Element) || !"bean".equals(childNodes.item(i).getNodeName())) {
                 continue;
             }
 
-            // 解析 <bean> 标签
+            // 解析当前 <bean> 标签
             Element bean = (Element) childNodes.item(i);
-            // 获取 <bean> 标签的 id、name 和 class 属性
+            // 获取 <bean> 标签的属性配置
             String id = bean.getAttribute("id");
             String name = bean.getAttribute("name");
             String className = bean.getAttribute("class");
+            String initMethod = bean.getAttribute("init-method");
+            String destroyMethodName = bean.getAttribute("destroy-method");
+
             // 获取 Class 对象，方便获取类中的名称
             Class<?> clazz = Class.forName(className);
             // 优先级：id > name
@@ -101,28 +100,33 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
             // 创建 BeanDefinition 对象
             BeanDefinition beanDefinition = new BeanDefinition(clazz);
+            beanDefinition.setInitMethodName(initMethod);
+            beanDefinition.setDestroyMethodName(destroyMethodName);
+
             // 循环遍历处理每个 <property> 属性标签
-            for (int j = 0; j < bean.getChildNodes().getLength(); j++) {
-                if (!(bean.getChildNodes().item(j) instanceof Element)) {
+            NodeList beanChildNodes = bean.getChildNodes();
+            for (int j = 0; j < beanChildNodes.getLength(); j++) {
+                // 若当前节点，非元素节点 / 非 <property> 标签，则跳过
+                if (!(beanChildNodes.item(j) instanceof Element) || !"property".equals(beanChildNodes.item(j).getNodeName())) {
                     continue;
                 }
-                Element propertyNode = (Element) bean.getChildNodes().item(j);
-                if (!"property".equals(propertyNode.getNodeName())) {
-                    continue;
-                }
+
                 // 解析标签：property
-                String attrName = propertyNode.getAttribute("name");
-                String attrValue = propertyNode.getAttribute("value");
-                String attrRef = propertyNode.getAttribute("ref");
-                // 获取属性值：引入对象、值对象
-                Object value = StrUtil.isNotEmpty(attrRef) ? new BeanReference(attrRef) : attrValue;
+                Element property = (Element) beanChildNodes.item(j);
+                String propertyName = property.getAttribute("name");
+                String propertyValue = property.getAttribute("value");
+                String propertyRef = property.getAttribute("ref");
+                // 获取属性值的value：引入对象、值对象
+                Object value = StrUtil.isNotEmpty(propertyRef) ? new BeanReference(propertyRef) : propertyValue;
                 // 创建属性信息
-                PropertyValue propertyValue = new PropertyValue(attrName, value);
-                beanDefinition.getPropertyValues().addPropertyValue(propertyValue);
+                PropertyValue valueToSet = new PropertyValue(propertyName, value);
+                beanDefinition.getPropertyValues().addPropertyValue(valueToSet);
             }
+
             if (super.getBeanRegistry().containsBeanDefinition(beanName)) {
-                throw new BeansException("Duplicate beanName[" + beanName + "] is not allowed");
+                throw new BeansException("bean对象命名重复[" + beanName + "]，请检查配置");
             }
+
             // 注册 BeanDefinition
             super.getBeanRegistry().registerBeanDefinition(beanName, beanDefinition);
         }

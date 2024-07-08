@@ -1,6 +1,10 @@
 package cn.learn.beans.factory.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.learn.beans.DisposableBean;
+import cn.learn.beans.DisposableBeanAdapter;
+import cn.learn.beans.InitializingBean;
 import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.beans.exception.BeansException;
 import cn.learn.beans.entity.BeanReference;
@@ -13,6 +17,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 
 /**
@@ -25,7 +30,7 @@ import java.util.Arrays;
 @Setter
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
 
-    // 策略模式：默认使用【简单实例化策略】
+    // note：策略模式：默认使用【简单实例化策略 SimpleInstantiationStrategy】
     private InstantiationStrategy instantiationStrategy = new SimpleInstantiationStrategy();
 
     /**
@@ -45,6 +50,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
         // 3. 执行 Bean 的初始化方法和 BeanPostProcessor 的前置和后置处理方法
         bean = initBean(beanName, bean, beanDefinition);
+
+        // 注册实现了 DisposableBean 接口的 Bean 对象
+        registerDisposableBeanIfNecessary(beanName, bean, beanDefinition);
 
         // 4. 缓存单例 Bean
         addSingleton(beanName, bean);
@@ -109,20 +117,49 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // 1. 执行 BeanPostProcessor 的前置处理
         Object wrappedBean = beforeProcess(bean, beanName);
 
-        // TODO：待完成内容：invokeInitMethods(beanName, wrappedBean, beanDefinition);
-        invokeOriginInit(beanName, wrappedBean, beanDefinition);
+        // 2. 执行 Bean 对象的初始化方法
+        try {
+            invokeInitMethods(beanName, wrappedBean, beanDefinition);
+        } catch (Exception e) {
+            throw new BeansException("调用Bean对象的原始初始化方法失败，beanName：[" + beanName + "]", e);
+        }
 
-        // 2. 执行 BeanPostProcessor 的后置处理
+        // 3. 执行 BeanPostProcessor 的后置处理，并返回
         wrappedBean = afterProcess(wrappedBean, beanName);
-
         return wrappedBean;
     }
 
-    /**
-     * 调用Bean对象原始的初始化方法
-     */
-    private void invokeOriginInit(String beanName, Object wrappedBean, BeanDefinition beanDefinition) {
+    private void registerDisposableBeanIfNecessary(String beanName, Object bean, BeanDefinition beanDefinition) {
+        // 如果通过 (1. 接口方式) 或者 (2. 配置XML文件方式)，定义了销毁方法，则都进行销毁方法的注册
+        if (bean instanceof DisposableBean || StrUtil.isNotEmpty(beanDefinition.getDestroyMethodName())) {
+            registerDisposableBean(beanName, new DisposableBeanAdapter(bean, beanName, beanDefinition));
+        }
+    }
 
+    /**
+     * 调用Bean对象的初始化方法，对外提供两种方式（根据 invokeInitMethods 的逻辑可知：接口的优先级 > 配置的优先级）：
+     * <p> 1. 在 xml 中配置初始化方法。</p>
+     * <p> 2. 通过实现接口的方式处理。</p>
+     */
+    private void invokeInitMethods(String beanName, Object bean, BeanDefinition beanDefinition) throws Exception {
+        // 1. 实现接口 InitializingBean
+        if (bean instanceof InitializingBean) {
+            ((InitializingBean) bean).afterPropertiesSet();
+        }
+
+        // 2. 注解配置 init-method（判断是为了避免二次执行初始化）
+        String initMethodName = beanDefinition.getInitMethodName();
+        if (StrUtil.isNotEmpty(initMethodName) && !(bean instanceof InitializingBean)) {
+            // 如果Bean设置了初始化方法，并且Bean实现了相应接口
+            Method initMethod = null;
+            try {
+                initMethod = beanDefinition.getBeanClass().getMethod(initMethodName);
+            } catch (NoSuchMethodException e) {
+                throw new BeansException("在bean对象 '" + beanName + "'上，不能找到一个命名为 '" + initMethodName + "' 的初始化方法");
+            }
+            // 调用初始化方法
+            initMethod.invoke(bean);
+        }
     }
 
     @Override
