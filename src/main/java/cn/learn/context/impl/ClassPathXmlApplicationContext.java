@@ -2,9 +2,7 @@ package cn.learn.context.impl;
 
 import cn.learn.beans.exception.BeansException;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 @Getter
 public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContext {
 

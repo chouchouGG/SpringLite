@@ -5,6 +5,7 @@ import cn.learn.beans.exception.BeansException;
 import cn.learn.beans.factory.ConfigurableBeanFactory;
 import cn.learn.beans.singleton.DefaultSingletonBeanRegistry;
 import cn.learn.beans.processor.BeanPostProcessor;
+import cn.learn.util.ClassUtils;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -21,6 +22,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     // BeanPostProcessors 在 createBean 中应用
      private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
+
+     private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
     @Override
     public Object getBean(String name) {
@@ -56,7 +59,6 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         // 2. 创建 Bean 实例
         return (T) createBean(name, beanDefinition, args);
     }
-
 
     /**
      * 根据 Bean 定义和构造函数参数，创建指定名称的 Bean 实例。

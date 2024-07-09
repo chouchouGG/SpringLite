@@ -5,11 +5,16 @@ import cn.hutool.core.util.StrUtil;
 import cn.learn.beans.DisposableBean;
 import cn.learn.beans.DisposableBeanAdapter;
 import cn.learn.beans.InitializingBean;
+import cn.learn.beans.aware.Aware;
+import cn.learn.beans.aware.BeanClassLoaderAware;
+import cn.learn.beans.aware.BeanFactoryAware;
+import cn.learn.beans.aware.BeanNameAware;
 import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.beans.exception.BeansException;
 import cn.learn.beans.entity.BeanReference;
 import cn.learn.beans.entity.PropertyValue;
 import cn.learn.beans.factory.AutowireCapableBeanFactory;
+import cn.learn.beans.factory.BeanFactory;
 import cn.learn.beans.processor.BeanPostProcessor;
 import cn.learn.beans.factory.support.instantiate.InstantiationStrategy;
 import cn.learn.beans.factory.support.instantiate.SimpleInstantiationStrategy;
@@ -114,7 +119,20 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     private Object initBean(String beanName, Object bean, BeanDefinition beanDefinition) {
-        // 1. 执行 BeanPostProcessor 的前置处理
+        // 设置Aware
+        if (bean instanceof Aware) {
+            if (bean instanceof BeanNameAware) {
+                ((BeanNameAware) bean).setBeanName(beanName);
+            }
+            if (bean instanceof BeanFactoryAware) {
+                ((BeanFactoryAware) bean).setBeanFactory(this);
+            }
+            if (bean instanceof BeanClassLoaderAware) {
+                ((BeanClassLoaderAware) bean).setBeanClassLoader(getBeanClassLoader());
+            }
+        }
+
+        // 1. 循环执行所有的 BeanPostProcessor 的前置处理
         Object wrappedBean = beforeProcess(bean, beanName);
 
         // 2. 执行 Bean 对象的初始化方法
@@ -124,7 +142,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             throw new BeansException("调用Bean对象的原始初始化方法失败，beanName：[" + beanName + "]", e);
         }
 
-        // 3. 执行 BeanPostProcessor 的后置处理，并返回
+        // 3. 循环执行所有的 BeanPostProcessor 的后置处理
         wrappedBean = afterProcess(wrappedBean, beanName);
         return wrappedBean;
     }
@@ -167,7 +185,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         Object result = bean;
         // 回调：循环处理所有 BeanPostProcessor 的【前置处理】方法
         for (BeanPostProcessor processor : getBeanPostProcessors()) {
-            result = processor.postProcessBeforeInitialization(result, beanName);
+            Object current = processor.postProcessBeforeInitialization(result, beanName);
+            if (null == current) {
+                return result;
+            }
+            result = current;
         }
         return result;
     }
@@ -177,7 +199,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         Object result = bean;
         // 回调：循环处理所有 BeanPostProcessor 的【后置处理】方法
         for (BeanPostProcessor processor : getBeanPostProcessors()) {
-            result = processor.postProcessAfterInitialization(result, beanName);
+            Object current = processor.postProcessAfterInitialization(result, beanName);
+            if (null == current) {
+                return result;
+            }
+            result = current;
         }
         return result;
     }
