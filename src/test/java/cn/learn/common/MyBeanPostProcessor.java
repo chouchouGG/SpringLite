@@ -2,7 +2,7 @@ package cn.learn.common;
 
 
 import cn.learn.bean.UserService;
-import cn.learn.beans.exception.BeansException;
+import cn.learn.exception.BeansException;
 import cn.learn.beans.processor.BeanPostProcessor;
 
 public class MyBeanPostProcessor implements BeanPostProcessor {

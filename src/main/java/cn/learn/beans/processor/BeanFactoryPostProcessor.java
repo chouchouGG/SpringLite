@@ -1,7 +1,7 @@
 package cn.learn.beans.processor;
 
-import cn.learn.beans.exception.BeansException;
-import cn.learn.beans.factory.ConfigurableListableBeanFactory;
+import cn.learn.exception.BeansException;
+import cn.learn.factory.ConfigurableListableBeanFactory;
 
 public interface BeanFactoryPostProcessor {
 

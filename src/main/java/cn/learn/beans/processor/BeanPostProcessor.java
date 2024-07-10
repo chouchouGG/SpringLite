@@ -1,6 +1,6 @@
 package cn.learn.beans.processor;
 
-import cn.learn.beans.exception.BeansException;
+import cn.learn.exception.BeansException;
 
 // note: 用于在 Bean 实例化前后对 Bean 进行一些定制的处理，比如代理、AOP、依赖注入等
 public interface BeanPostProcessor {

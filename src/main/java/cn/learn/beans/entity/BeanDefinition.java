@@ -1,7 +1,7 @@
 package cn.learn.beans.entity;
 
-import cn.learn.beans.exception.BeansException;
-import cn.learn.beans.factory.ConfigurableBeanFactory;
+import cn.learn.exception.BeansException;
+import cn.learn.factory.ConfigurableBeanFactory;
 import lombok.Getter;
 import lombok.Setter;
 

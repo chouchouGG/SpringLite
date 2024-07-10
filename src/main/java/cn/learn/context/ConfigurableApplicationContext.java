@@ -1,6 +1,6 @@
 package cn.learn.context;
 
-import cn.learn.beans.exception.BeansException;
+import cn.learn.exception.BeansException;
 
 public interface ConfigurableApplicationContext extends ApplicationContext {
 

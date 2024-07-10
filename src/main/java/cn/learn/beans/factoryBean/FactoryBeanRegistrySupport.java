@@ -1,6 +1,6 @@
 package cn.learn.beans.factoryBean;
 
-import cn.learn.beans.exception.BeansException;
+import cn.learn.exception.BeansException;
 import cn.learn.beans.singleton.DefaultSingletonBeanRegistry;
 
 import java.util.Map;

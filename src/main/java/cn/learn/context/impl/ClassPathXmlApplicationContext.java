@@ -1,6 +1,6 @@
 package cn.learn.context.impl;
 
-import cn.learn.beans.exception.BeansException;
+import cn.learn.exception.BeansException;
 import lombok.Getter;
 
 @Getter

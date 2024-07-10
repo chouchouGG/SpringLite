@@ -4,8 +4,8 @@ package cn.learn.common;
 import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.beans.entity.PropertyValue;
 import cn.learn.beans.entity.PropertyValues;
-import cn.learn.beans.exception.BeansException;
-import cn.learn.beans.factory.ConfigurableListableBeanFactory;
+import cn.learn.exception.BeansException;
+import cn.learn.factory.ConfigurableListableBeanFactory;
 import cn.learn.beans.processor.BeanFactoryPostProcessor;
 
 public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {

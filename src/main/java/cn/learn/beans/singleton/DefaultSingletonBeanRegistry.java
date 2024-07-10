@@ -1,7 +1,7 @@
 package cn.learn.beans.singleton;
 
-import cn.learn.beans.DisposableBean;
-import cn.learn.beans.exception.BeansException;
+import cn.learn.beans.support.DisposableBean;
+import cn.learn.exception.BeansException;
 
 import java.util.HashMap;
 import java.util.Map;

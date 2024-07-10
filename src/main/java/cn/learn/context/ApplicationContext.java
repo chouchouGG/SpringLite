@@ -1,6 +1,6 @@
 package cn.learn.context;
 
-import cn.learn.beans.factory.ListableBeanFactory;
+import cn.learn.factory.ListableBeanFactory;
 
 public interface  ApplicationContext extends ListableBeanFactory {
 }

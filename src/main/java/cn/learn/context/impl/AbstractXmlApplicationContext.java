@@ -1,6 +1,6 @@
 package cn.learn.context.impl;
 
-import cn.learn.beans.xml.XmlBeanDefinitionReader;
+import cn.learn.core.io.reader.XmlBeanDefinitionReader;
 
 public abstract class AbstractXmlApplicationContext extends AbstractRefreshableApplicationContext {
 

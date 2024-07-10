@@ -1,9 +1,8 @@
 package cn.learn.context.impl;
 
 import cn.learn.beans.entity.BeanDefinition;
-import cn.learn.beans.exception.BeansException;
-import cn.learn.beans.factory.ConfigurableListableBeanFactory;
-import cn.learn.beans.factory.impl.DefaultListableBeanFactory;
+import cn.learn.exception.BeansException;
+import cn.learn.factory.impl.DefaultListableBeanFactory;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
