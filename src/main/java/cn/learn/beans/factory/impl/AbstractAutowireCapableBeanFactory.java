@@ -47,20 +47,26 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     @Override
     protected Object createBean(String beanName, BeanDefinition beanDefinition, Object[] args) {
         Object bean = null;
-        // 1. 实例化 Bean
+
+        // 1. 执行构造方法，实例化 Bean
         bean = createBeanInstance(beanDefinition, args);
 
-        // 2. 给 Bean 填充属性
+        // 2. 设置属性值（根据配置文件填充属性值，会覆盖实例化时的参数 args 设置）
         setConfigPropertyValues(beanName, bean, beanDefinition);
 
-        // 3. 执行 Bean 的初始化方法和 BeanPostProcessor 的前置和后置处理方法
-        bean = initBean(beanName, bean, beanDefinition);
+        // 3. 设置感知层
+        setBeanAware(beanName, bean);
 
-        // 注册实现了 DisposableBean 接口的 Bean 对象
+        // 3. 执行【初始化方法】，并执行处理器的【前置和后置方法】
+        bean = initBeanAndProcess(beanName, bean, beanDefinition);
+
+        // 注册【销毁方法】
         registerDisposableBeanIfNecessary(beanName, bean, beanDefinition);
 
-        // 4. 缓存单例 Bean
-        addSingleton(beanName, bean);
+        // 4. 【缓存】只有Bean的作用域是单例时，才缓存该单例Bean
+        if (beanDefinition.isSingleton()) {
+            addSingleton(beanName, bean);
+        }
 
         return bean;
     }
@@ -118,37 +124,46 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         }
     }
 
-    private Object initBean(String beanName, Object bean, BeanDefinition beanDefinition) {
-        // 设置Aware
+    private void setBeanAware(String beanName, Object bean) {
         if (bean instanceof Aware) {
+            // 1. BeanName感知
             if (bean instanceof BeanNameAware) {
                 ((BeanNameAware) bean).setBeanName(beanName);
             }
+            // 2. BeanFactory感知
             if (bean instanceof BeanFactoryAware) {
                 ((BeanFactoryAware) bean).setBeanFactory(this);
             }
+            // 3. BeanClassLoader感知
             if (bean instanceof BeanClassLoaderAware) {
                 ((BeanClassLoaderAware) bean).setBeanClassLoader(getBeanClassLoader());
             }
         }
+    }
 
-        // 1. 循环执行所有的 BeanPostProcessor 的前置处理
-        Object wrappedBean = beforeProcess(bean, beanName);
+    private Object initBeanAndProcess(String beanName, Object bean, BeanDefinition beanDefinition) {
+        // 1. 前置处理
+        Object wrappedBean = beforeProcessOfAllProcessor(bean, beanName);
 
-        // 2. 执行 Bean 对象的初始化方法
+        // 2. 初始化方法
         try {
             invokeInitMethods(beanName, wrappedBean, beanDefinition);
         } catch (Exception e) {
             throw new BeansException("调用Bean对象的原始初始化方法失败，beanName：[" + beanName + "]", e);
         }
 
-        // 3. 循环执行所有的 BeanPostProcessor 的后置处理
-        wrappedBean = afterProcess(wrappedBean, beanName);
+        // 3. 后置处理
+        wrappedBean = afterProcessOfAllProcessor(wrappedBean, beanName);
         return wrappedBean;
     }
 
     private void registerDisposableBeanIfNecessary(String beanName, Object bean, BeanDefinition beanDefinition) {
-        // 如果通过 (1. 接口方式) 或者 (2. 配置XML文件方式)，定义了销毁方法，则都进行销毁方法的注册
+        // 原型Bean实例的销毁由使用者控制，Spring容器无法跟踪这些Bean的生命周期。因此，Spring不负责调用原型Bean的销毁方法。
+        if (beanDefinition.isPrototype()) {
+            return;
+        }
+
+        // 如果通过 (1. 接口方式) 或者 (2. 配置XML文件方式) 定义了销毁方法，则进行销毁方法的注册
         if (bean instanceof DisposableBean || StrUtil.isNotEmpty(beanDefinition.getDestroyMethodName())) {
             registerDisposableBean(beanName, new DisposableBeanAdapter(bean, beanName, beanDefinition));
         }
@@ -181,7 +196,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     @Override
-    public Object beforeProcess(Object bean, String beanName) throws BeansException {
+    public Object beforeProcessOfAllProcessor(Object bean, String beanName) throws BeansException {
         Object result = bean;
         // 回调：循环处理所有 BeanPostProcessor 的【前置处理】方法
         for (BeanPostProcessor processor : getBeanPostProcessors()) {
@@ -195,7 +210,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     @Override
-    public Object afterProcess(Object bean, String beanName) throws BeansException {
+    public Object afterProcessOfAllProcessor(Object bean, String beanName) throws BeansException {
         Object result = bean;
         // 回调：循环处理所有 BeanPostProcessor 的【后置处理】方法
         for (BeanPostProcessor processor : getBeanPostProcessors()) {

@@ -30,6 +30,12 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
     private final Map<String, DisposableBean> disposableBeans = new HashMap<>();
 
     /**
+     * NULL_OBJECT 是一个内部标记对象，用于表示单例对象缓存中的 null 值，因为 ConcurrentHashMap 不支持存储 null 值。
+     */
+    protected static final Object NULL_OBJECT = new Object();
+
+
+    /**
      * 从单例缓存中获取单例对象
      */
     @Override

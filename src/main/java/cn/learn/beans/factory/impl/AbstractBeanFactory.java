@@ -1,9 +1,9 @@
 package cn.learn.beans.factory.impl;
 
+import cn.learn.beans.factoryBean.FactoryBean;
+import cn.learn.beans.factoryBean.FactoryBeanRegistrySupport;
 import cn.learn.beans.entity.BeanDefinition;
-import cn.learn.beans.exception.BeansException;
 import cn.learn.beans.factory.ConfigurableBeanFactory;
-import cn.learn.beans.singleton.DefaultSingletonBeanRegistry;
 import cn.learn.beans.processor.BeanPostProcessor;
 import cn.learn.util.ClassUtils;
 import lombok.Getter;
@@ -18,11 +18,12 @@ import java.util.List;
  * @create: 2024-07-04 23:45
  **/
 @Getter
-public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
+public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport implements ConfigurableBeanFactory {
 
-    // BeanPostProcessors 在 createBean 中应用
+     // 处理器列表
      private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
+     // 默认的类加载器
      private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
     @Override
@@ -50,14 +51,31 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     protected <T> T doGetBean(final String name, final Object[] args) {
         // 尝试从单例缓存中获取 Bean
-        Object bean = getSingleton(name);
-        if (bean != null) {
-            return (T) bean;
+        Object sharedInstance = getSingleton(name);
+        // 如果是代理bean，需要调用代理bean的getObject，获取实际的对象
+        if (sharedInstance != null) {
+            // 如果是 FactoryBean，则需要调用 FactoryBean#getObject
+            return (T) getObjectIfFactoryBean(sharedInstance, name);
         }
-        // 1. 获取 Bean 定义
-        BeanDefinition beanDefinition = getBeanDefinition(name);
-        // 2. 创建 Bean 实例
-        return (T) createBean(name, beanDefinition, args);
+        // 创建 Bean：实例化 + 初始化
+        Object bean = createBean(name, getBeanDefinition(name), args);
+        return (T) getObjectIfFactoryBean(bean, name);
+    }
+
+    private Object getObjectIfFactoryBean(Object beanInstance, String beanName) {
+        // 如果不是 FactoryBean 类型，直接返回
+        if (!(beanInstance instanceof FactoryBean)) {
+            return beanInstance;
+        }
+
+        // 从缓存中获取
+        Object object = getCachedObjectFromFactoryBean(beanName);
+        // 缓存未命中
+        if (object == null) {
+            FactoryBean<?> factoryBean = (FactoryBean<?>) beanInstance;
+            object = getObjectFromFactoryBean(factoryBean, beanName);
+        }
+        return object;
     }
 
     /**

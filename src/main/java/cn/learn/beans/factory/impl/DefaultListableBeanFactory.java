@@ -60,9 +60,12 @@ public class DefaultListableBeanFactory extends  AbstractAutowireCapableBeanFact
 
     @Override
     public void preInstantiateSingletons() throws BeansException {
-        Set<String> beanNames = beanDefinitionMap.keySet();
-        for (String beanName : beanNames) {
-            getBean(beanName);
+        for (String beanName : getBeanDefinitionNames()) {
+            // 只有配置为单例的bean，才预先进行实例化
+            // 单例通常都是无状态的，故直接调用getBean(String)
+            if (getBeanDefinition(beanName).isSingleton()) {
+                getBean(beanName);
+            }
         }
     }
 

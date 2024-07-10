@@ -1,7 +1,10 @@
 package cn.learn.beans.entity;
 
+import cn.learn.beans.exception.BeansException;
+import cn.learn.beans.factory.ConfigurableBeanFactory;
 import lombok.Getter;
 import lombok.Setter;
+
 
 /**
  * @program: SpringLite
@@ -15,20 +18,34 @@ public class BeanDefinition {
 
     private Class beanClass;
 
-    private PropertyValues propertyValues;
-
     // 这两个字段是为了能在spring.xml的<bean>标签中配置'init-method'和'destory-method'两个属性
     private String initMethodName;
+
     private String destroyMethodName;
 
-    public BeanDefinition(Class beanClass) {
-        this.beanClass = beanClass;
-        this.propertyValues = new PropertyValues();
+    private String scope = ConfigurableBeanFactory.SCOPE_SINGLETON;
+
+    private PropertyValues propertyValues = new PropertyValues();
+
+    private boolean singleton = true;
+
+    private boolean prototype = false;
+
+    public void setScope(String scope) {
+        this.scope = scope;
+        if (scope.equals(ConfigurableBeanFactory.SCOPE_SINGLETON)) {
+            singleton = true;
+            prototype = false;
+        } else if (scope.equals(ConfigurableBeanFactory.SCOPE_PROTOTYPE)) {
+            singleton = false;
+            prototype = true;
+        } else {
+            throw new BeansException(beanClass.getName() + "无效的配置, 作用域 scope: " + scope);
+        }
     }
 
-    public BeanDefinition(Class beanClass, PropertyValues propertyValues) {
-        this.beanClass = beanClass;
-        this.propertyValues = (propertyValues == null) ? new PropertyValues() : propertyValues;
+    public boolean isSingleton() {
+        return singleton;
     }
 
 }

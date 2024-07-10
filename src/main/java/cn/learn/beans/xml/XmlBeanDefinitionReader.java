@@ -1,14 +1,13 @@
 package cn.learn.beans.xml;
 
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.XmlUtil;
 import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.beans.entity.BeanReference;
 import cn.learn.beans.entity.PropertyValue;
 import cn.learn.beans.exception.BeansException;
-import cn.learn.beans.factory.support.registry.BeanDefinitionRegistry;
 import cn.learn.beans.factory.support.reader.AbstractBeanDefinitionReader;
+import cn.learn.beans.factory.support.registry.BeanDefinitionRegistry;
 import cn.learn.core.io.Resource;
 import cn.learn.core.io.ResourceLoader;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,6 @@ import org.w3c.dom.NodeList;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
 
 @Slf4j
 public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
@@ -33,13 +31,11 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
     @Override
     public void loadBeanDefinitions(Resource resource) throws BeansException {
-        try (InputStream inputStream = resource.getInputStream()){
+        try (InputStream inputStream = resource.getInputStream()) {
             doLoadBeanDefinitions(inputStream);
         } catch (IOException | ClassNotFoundException e) {
             throw new BeansException("IOException parsing XML document from " + resource, e);
         }
-        // 打印加载的Bean
-        displayBeanDefNames();
     }
 
     @Override
@@ -64,6 +60,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
     /**
      * 解析XML格式的Bean配置文件的核心逻辑
+     *
      * @param inputStream 文件的输入流
      */
     private void doLoadBeanDefinitions(InputStream inputStream) throws ClassNotFoundException {
@@ -89,19 +86,25 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             String className = bean.getAttribute("class");
             String initMethod = bean.getAttribute("init-method");
             String destroyMethodName = bean.getAttribute("destroy-method");
+            String beanScope = bean.getAttribute("scope");
+
 
             // 获取 Class 对象，方便获取类中的名称
-            Class<?> clazz = Class.forName(className);
+            Class<?> beanClass = Class.forName(className);
             // 优先级：id > name
             String beanName = StrUtil.isNotEmpty(id) ? id : name;
             if (StrUtil.isEmpty(beanName)) {
-                beanName = StrUtil.lowerFirst(clazz.getSimpleName());
+                beanName = StrUtil.lowerFirst(beanClass.getSimpleName());
             }
 
             // 创建 BeanDefinition 对象
-            BeanDefinition beanDefinition = new BeanDefinition(clazz);
+            BeanDefinition beanDefinition = new BeanDefinition();
+            beanDefinition.setBeanClass(beanClass);
             beanDefinition.setInitMethodName(initMethod);
             beanDefinition.setDestroyMethodName(destroyMethodName);
+            if (StrUtil.isNotEmpty(beanScope)) {
+                beanDefinition.setScope(beanScope);
+            }
 
             // 循环遍历处理每个 <property> 属性标签
             NodeList beanChildNodes = bean.getChildNodes();
@@ -130,14 +133,6 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             // 注册 BeanDefinition
             super.getBeanRegistry().registerBeanDefinition(beanName, beanDefinition);
         }
-    }
-
-    /**
-     * 日志处理：负责打印加载的Bean
-     */
-    private void displayBeanDefNames() {
-        String[] names = super.getBeanRegistry().getBeanDefinitionNames();
-        log.info("注册了 {} 个Bean：{}", names.length, ArrayUtil.toString(names));
     }
 
 }

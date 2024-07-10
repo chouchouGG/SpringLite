@@ -1,11 +1,14 @@
 package cn.learn.context.impl;
 
+import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.beans.exception.BeansException;
 import cn.learn.beans.factory.ConfigurableListableBeanFactory;
 import cn.learn.beans.factory.impl.DefaultListableBeanFactory;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 @Getter
+@Slf4j
 public abstract class AbstractRefreshableApplicationContext extends AbstractApplicationContext {
 
     private DefaultListableBeanFactory beanFactory;
@@ -14,6 +17,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
     protected void refreshBeanFactory() throws BeansException {
         beanFactory = new DefaultListableBeanFactory();
         loadBeanDefinitions();
+        print();
     }
 
     /**
@@ -21,4 +25,15 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
      */
     protected abstract void loadBeanDefinitions();
 
+    // 控制台打印
+    private void print() {
+        String[] beanNames = beanFactory.getBeanDefinitionNames();
+        System.out.println("注册的 Beans:");
+        for (String beanName : beanNames) {
+            // fully qualified class name
+            BeanDefinition beanDefinition = beanFactory.getBeanDefinition(beanName);
+            String fqcn = beanDefinition.getBeanClass().getName();
+            System.out.println(" - " + fqcn + " - " + beanDefinition.getScope());
+        }
+    }
 }
