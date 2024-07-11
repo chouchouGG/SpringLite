@@ -14,8 +14,8 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
      * @param configLocations
      * @throws BeansException
      */
-    public ClassPathXmlApplicationContext(String configLocations) throws BeansException {
-        this(new String[]{configLocations});
+    public ClassPathXmlApplicationContext(String configLocation) throws BeansException {
+        this(new String[]{configLocation});
     }
 
     /**

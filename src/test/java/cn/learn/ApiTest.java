@@ -2,6 +2,7 @@ package cn.learn;
 
 import cn.learn.bean.UserService;
 import cn.learn.context.impl.ClassPathXmlApplicationContext;
+import cn.learn.event.CustomEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
@@ -26,7 +27,6 @@ public class ApiTest {
 
     }
 
-
     @Test
     public void test_factory_bean() {
         // 1.初始化 BeanFactory
@@ -38,4 +38,15 @@ public class ApiTest {
         userService.queryAllUserNames().forEach(s -> System.out.print(s + " "));
 
     }
+
+    @Test
+    public void test_event() {
+        String configLocation = "classpath:springEvent.xml";
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext(configLocation);
+        CustomEvent event = new CustomEvent(applicationContext, 1019129009086763L, "成功了！");
+        applicationContext.publishEvent(event);
+
+        applicationContext.registerShutdownHook();
+    }
+
 }

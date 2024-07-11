@@ -26,10 +26,10 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
      // 默认的类加载器
      private ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
 
-    @Override
-    public Object getBean(String name) {
-        return doGetBean(name, null);
-    }
+//    @Override
+//    public Object getBean(String name) {
+//        return doGetBean(name, null);
+//    }
 
     @Override
     public Object getBean(String name, Object... args) {
