@@ -1,7 +1,7 @@
 package cn.learn;
 
-import cn.learn.aop.AopConfiguration;
-import cn.learn.aop.pointcut.AspectJExpressionPointcut;
+import cn.learn.aop.entity.AopProxyConfig;
+import cn.learn.aop.aspect.pointcut.AspectJPointcutor;
 import cn.learn.aop.proxy.JdkDynamicAopProxy;
 import cn.learn.bean.IUserService;
 import cn.learn.bean.UserService;
@@ -64,10 +64,10 @@ public class ApiTest {
         IUserService userService = new UserService();
 
         // 组装代理信息
-        AopConfiguration advisedSupport = new AopConfiguration();
-        advisedSupport.setTargetSource(new AopConfiguration.TargetSource(userService));
+        AopProxyConfig advisedSupport = new AopProxyConfig();
+        advisedSupport.setTargetSource(new AopProxyConfig.TargetSource(userService));
         advisedSupport.setMethodInterceptor(new UserServiceInterceptor());
-        advisedSupport.setMethodMatcher(new AspectJExpressionPointcut("execution(* cn.learn.bean.IUserService.*(..))"));
+        advisedSupport.setMethodMatcher(new AspectJPointcutor("execution(* cn.learn.bean.IUserService.*(..))"));
 
         // 代理对象(JdkDynamicAopProxy)
         JdkDynamicAopProxy proxy = new JdkDynamicAopProxy(advisedSupport);
@@ -76,6 +76,14 @@ public class ApiTest {
 
         // 测试调用
         System.out.println("测试结果：" + ((IUserService) proxy1).queryUserInfo());
+    }
+
+    @Test
+    public void test_aop() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+        IUserService userService = applicationContext.getBean("userService", IUserService.class);
+        String result = userService.queryUserInfo();
+        System.out.println("测试结果：" + result);
     }
 
 }

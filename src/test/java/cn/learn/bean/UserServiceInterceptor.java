@@ -1,15 +1,15 @@
 package cn.learn.bean;
 
 import cn.hutool.core.date.StopWatch;
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
+import cn.learn.aop.aspect.joinpoint.Joinpoint;
+import cn.learn.aop.aspect.interceptor.MethodAdviceInterceptor;
 
 import java.util.concurrent.TimeUnit;
 
-public class UserServiceInterceptor implements MethodInterceptor {
+public class UserServiceInterceptor implements MethodAdviceInterceptor {
 
     @Override
-    public Object invoke(MethodInvocation invocation) throws Throwable {
+    public Object invoke(Joinpoint invocation) throws Throwable {
         StopWatch sw = new StopWatch();
 
         sw.start("方法执行耗时");

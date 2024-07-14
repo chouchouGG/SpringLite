@@ -5,7 +5,7 @@ import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.beans.entity.PropertyValue;
 import cn.learn.beans.entity.PropertyValues;
 import cn.learn.exception.BeansException;
-import cn.learn.factory.ConfigurableListableBeanFactory;
+import cn.learn.beanfactory.ConfigurableListableBeanFactory;
 import cn.learn.beans.processor.BeanFactoryPostProcessor;
 
 public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {

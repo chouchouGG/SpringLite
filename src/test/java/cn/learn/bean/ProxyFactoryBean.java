@@ -1,6 +1,6 @@
 package cn.learn.bean;
 
-import cn.learn.beans.factoryBean.FactoryBean;
+import cn.learn.beanfactory.factoryBean.FactoryBean;
 import cn.learn.util.ClassUtils;
 
 import java.lang.reflect.InvocationHandler;

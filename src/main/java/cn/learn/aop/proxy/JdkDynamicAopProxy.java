@@ -1,9 +1,9 @@
 package cn.learn.aop.proxy;
 
-import cn.learn.aop.AopConfiguration;
-import cn.learn.aop.ReflectiveMethodInvocation;
-import cn.learn.aop.pointcut.MethodMatcher;
-import org.aopalliance.intercept.MethodInterceptor;
+import cn.learn.aop.aspect.interceptor.MethodAdviceInterceptor;
+import cn.learn.aop.entity.AopProxyConfig;
+import cn.learn.aop.aspect.joinpoint.ProceedingJoinPoint;
+import cn.learn.aop.aspect.pointcut.MethodMatcher;
 import sun.misc.ProxyGenerator;
 
 import java.io.FileOutputStream;
@@ -16,9 +16,9 @@ import java.lang.reflect.Proxy;
  */
 public class JdkDynamicAopProxy extends AbstractAopProxy implements InvocationHandler {
 
-    private final AopConfiguration aopConfig;
+    private final AopProxyConfig aopConfig;
 
-    public JdkDynamicAopProxy(AopConfiguration aopConfig) {
+    public JdkDynamicAopProxy(AopProxyConfig aopConfig) {
         this.aopConfig = aopConfig;
     }
 
@@ -32,8 +32,8 @@ public class JdkDynamicAopProxy extends AbstractAopProxy implements InvocationHa
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         // 1. 获取目标对象 TargetSource、方法拦截器 MethodInterceptor 和方法匹配器 MethodMatcher
-        AopConfiguration.TargetSource targetSource = aopConfig.getTargetSource();
-        MethodInterceptor methodInterceptor = aopConfig.getMethodInterceptor();
+        AopProxyConfig.TargetSource targetSource = aopConfig.getTargetSource();
+        MethodAdviceInterceptor methodInterceptor = aopConfig.getMethodInterceptor();
         MethodMatcher methodMatcher = aopConfig.getMethodMatcher();
 
         // 2. 从目标对象 TargetSource 获取实际的目标对象实例
@@ -44,10 +44,10 @@ public class JdkDynamicAopProxy extends AbstractAopProxy implements InvocationHa
 
         // 4. 检查方法是否匹配切入点表达式
         // 4.1 若匹配
-        boolean matche = methodMatcher.matches(method, clazz);
-        if (matche) {
-            // 5. 创建 ReflectiveMethodInvocation 对象，封装目标对象（target）、方法（method）和参数（args）。
-            ReflectiveMethodInvocation argsForInvoke = new ReflectiveMethodInvocation(target, method, args);
+        boolean match = methodMatcher.methodMatch(method, clazz);
+        if (match) {
+            // 5. 封装目标对象（target）、方法（method）和参数（args）。
+            ProceedingJoinPoint argsForInvoke = new ProceedingJoinPoint(target, method, args);
 
             // 6. 调用方法拦截器的 invoke 方法，执行自定义逻辑，并调用原目标方法。
             return methodInterceptor.invoke(argsForInvoke);
