@@ -5,7 +5,7 @@
     <bean id="userService" class="cn.learn.bean.UserService"/>
 
     <!--DefaultProxyCreateProcessor-->
-    <bean class="cn.learn.aop.proxy.autoproxy.ProxyCreatorProcessor"/>
+    <bean class="cn.learn.beans.processor.impl.DefaultAopProxyCreator"/>
 
     <!--UserServiceBeforeAdvice-->
     <bean id="userServiceBeforeAdvice" class="cn.learn.aop.UserServiceBeforeAdvice"/>

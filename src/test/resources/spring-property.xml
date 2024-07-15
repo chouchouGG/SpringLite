@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+
+    <bean class="cn.learn.beans.processor.impl.PropertyPlaceholderConfigurer">
+        <property name="resourceLoadinglocation" value="classpath:token.properties"/>
+    </bean>
+
+    <bean id="userService" class="cn.learn.bean.UserService">
+        <property name="token" value="${token}"/>
+    </bean>
+
+</beans>

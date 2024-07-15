@@ -1,7 +1,9 @@
 package cn.learn.beanfactory;
 
+import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.exception.BeansException;
 
+import java.util.Collection;
 import java.util.Map;
 
 
@@ -23,5 +25,7 @@ public interface ListableBeanFactory extends BeanFactory {
      * 返回注册表中所有的Bean名称
      */
     String[] getBeanDefinitionNames();
+
+    BeanDefinition[] getBeanDefinitions();
 
 }

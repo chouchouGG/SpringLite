@@ -10,10 +10,7 @@ import java.util.List;
  **/
 public interface IUserService {
 
-    String register(String userName);
-
     String queryUserInfo();
 
-    List<String> queryAllUserNames();
-
+    String register(String userName);
 }

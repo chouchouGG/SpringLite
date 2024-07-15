@@ -1,8 +1,7 @@
 package cn.learn.beans.entity;
 
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @program: SpringLite
@@ -12,31 +11,26 @@ import java.util.List;
  **/
 public class PropertyValues {
 
-    private final List<PropertyValue> propertyValueList = new ArrayList<>();
+    private final Map<String, Object> propertyValueMap = new HashMap<>();
 
     /**
      * 向List中添加属性值
      */
-    public void addPropertyValue(PropertyValue pv) {
-        this.propertyValueList.add(pv);
+    public void addPropertyValue(String key, Object value) {
+        propertyValueMap.put(key, value);
     }
 
     /**
      * 获取属性值数组
      */
-    public PropertyValue[] getPropertyValuesArray() {
-        return propertyValueList.toArray(new PropertyValue[0]);
+    public Set<Map.Entry<String, Object>> getPropertyValueEntries() {
+        return propertyValueMap.entrySet();
     }
 
     /**
      * 根据属性值名称获取对应的属性值
      */
-    public PropertyValue getPropertyValue(String propertyName) {
-        for (PropertyValue pv : propertyValueList) {
-            if (pv.getName().equals(propertyName)) {
-                return pv;
-            }
-        }
-        return null;
+    public Object getPropertyValue(String propertyName) {
+        return propertyValueMap.get(propertyName);
     }
 }

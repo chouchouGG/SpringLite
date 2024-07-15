@@ -1,6 +1,6 @@
 package cn.learn.context.impl;
 
-import cn.learn.aware.ApplicationContextAwareProcessor;
+import cn.learn.beans.processor.impl.ApplicationContextAwareProcessor;
 import cn.learn.beans.processor.BeanFactoryPostProcessor;
 import cn.learn.beans.processor.BeanPostProcessor;
 import cn.learn.context.ConfigurableApplicationContext;

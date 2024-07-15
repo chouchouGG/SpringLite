@@ -6,10 +6,25 @@ import cn.learn.core.io.resource.FileSystemResource;
 import cn.learn.core.io.resource.Resource;
 import cn.learn.core.io.resource.UrlResource;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
 public class DefaultResourceLoader implements ResourceLoader {
+
+    /**
+     * 加载资源并返回输入流，该静态方法提供更加简便的方式获取资源输入流
+     *
+     * @param location 资源位置
+     */
+    public static InputStream loadResourceLocationAsStream(String location) {
+        try {
+            return new DefaultResourceLoader().getResource(location).getInputStream();
+        } catch (IOException e) {
+            throw new RuntimeException("未能加载资源：" + location, e);
+        }
+    }
 
     @Override
     public Resource getResource(String location) {

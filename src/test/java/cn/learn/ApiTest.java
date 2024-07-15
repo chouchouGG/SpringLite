@@ -42,7 +42,7 @@ public class ApiTest {
         // 2. 调用代理方法
         UserService userService = (UserService) applicationContext.getBean("userService", UserService.class);
         System.out.println("测试结果：" + userService.queryUserInfo());
-        userService.queryAllUserNames().forEach(s -> System.out.print(s + " "));
+//        userService.queryAllUserNames().forEach(s -> System.out.print(s + " "));
 
     }
 
@@ -84,6 +84,21 @@ public class ApiTest {
         IUserService userService = applicationContext.getBean("userService", IUserService.class);
         String result = userService.queryUserInfo();
         System.out.println("测试结果：" + result);
+    }
+
+    @Test
+    public void test_property() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-property.xml");
+        IUserService userService = applicationContext.getBean("userService", IUserService.class);
+        String token = ((UserService) userService).getToken();
+        System.out.println("测试结果：'" + token + "'");
+    }
+
+    @Test
+    public void test_scan() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-scan.xml");
+        IUserService userService = applicationContext.getBean("userService", IUserService.class);
+        System.out.println("测试结果：" + userService.queryUserInfo());
     }
 
 }

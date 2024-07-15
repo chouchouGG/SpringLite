@@ -5,6 +5,7 @@ import cn.learn.exception.BeansException;
 import cn.learn.beanfactory.ConfigurableListableBeanFactory;
 import cn.learn.beans.registry.BeanDefinitionRegistry;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,6 +48,11 @@ public class DefaultListableBeanFactory extends  AbstractAutowireCapableBeanFact
     @Override
     public String[] getBeanDefinitionNames() {
         return beanDefinitionMap.keySet().toArray(new String[0]);
+    }
+
+    @Override
+    public BeanDefinition[] getBeanDefinitions() {
+        return beanDefinitionMap.values().toArray(new BeanDefinition[0]);
     }
 
     @Override

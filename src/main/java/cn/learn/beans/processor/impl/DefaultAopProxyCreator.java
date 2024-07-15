@@ -1,4 +1,4 @@
-package cn.learn.aop.proxy.autoproxy;
+package cn.learn.beans.processor.impl;
 
 import cn.learn.aop.aspect.aspector.AspectJAspetor;
 import cn.learn.aop.aspect.aspector.Aspector;
@@ -6,6 +6,7 @@ import cn.learn.aop.aspect.advice.Advice;
 import cn.learn.aop.aspect.interceptor.MethodAdviceInterceptor;
 import cn.learn.aop.aspect.pointcut.Pointcutor;
 import cn.learn.aop.entity.AopProxyConfig;
+import cn.learn.aop.proxy.autoproxy.ProxyFactory;
 import cn.learn.aware.BeanFactoryAware;
 import cn.learn.beans.processor.InstantiationAwareBeanPostProcessor;
 import cn.learn.exception.BeansException;
@@ -16,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Collection;
 
 @Slf4j
-public class ProxyCreatorProcessor implements InstantiationAwareBeanPostProcessor, BeanFactoryAware {
+public class DefaultAopProxyCreator implements InstantiationAwareBeanPostProcessor, BeanFactoryAware {
 
     private DefaultListableBeanFactory beanFactory;
 

@@ -5,6 +5,8 @@ import cn.learn.beanfactory.ConfigurableBeanFactory;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Objects;
+
 
 /**
  * @program: SpringLite
@@ -31,6 +33,10 @@ public class BeanDefinition {
 
     private boolean prototype = false;
 
+    public BeanDefinition(Class beanClass) {
+        this.beanClass = beanClass;
+    }
+
     public void setScope(String scope) {
         this.scope = scope;
         if (scope.equals(ConfigurableBeanFactory.SCOPE_SINGLETON)) {
@@ -48,4 +54,22 @@ public class BeanDefinition {
         return singleton;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BeanDefinition that = (BeanDefinition) o;
+        return (singleton == that.singleton)
+                && (prototype == that.prototype)
+                && Objects.equals(beanClass, that.beanClass)
+                && Objects.equals(initMethodName, that.initMethodName)
+                && Objects.equals(destroyMethodName, that.destroyMethodName)
+                && Objects.equals(scope, that.scope)
+                && Objects.equals(propertyValues, that.propertyValues);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(beanClass, initMethodName, destroyMethodName, scope, propertyValues, singleton, prototype);
+    }
 }

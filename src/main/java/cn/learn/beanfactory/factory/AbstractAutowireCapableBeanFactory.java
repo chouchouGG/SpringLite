@@ -2,22 +2,21 @@ package cn.learn.beanfactory.factory;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.learn.beans.processor.InstantiationAwareBeanPostProcessor;
-import cn.learn.beans.support.DisposableBean;
-import cn.learn.beans.support.DisposableBeanAdapter;
-import cn.learn.beans.support.InitializingBean;
 import cn.learn.aware.Aware;
 import cn.learn.aware.BeanClassLoaderAware;
 import cn.learn.aware.BeanFactoryAware;
 import cn.learn.aware.BeanNameAware;
-import cn.learn.beans.entity.BeanDefinition;
-import cn.learn.exception.BeansException;
-import cn.learn.beans.entity.BeanReference;
-import cn.learn.beans.entity.PropertyValue;
 import cn.learn.beanfactory.AutowireCapableBeanFactory;
-import cn.learn.beans.processor.BeanPostProcessor;
+import cn.learn.beans.entity.BeanDefinition;
+import cn.learn.beans.entity.BeanReference;
 import cn.learn.beans.instantiate.InstantiationStrategy;
 import cn.learn.beans.instantiate.SimpleInstantiationStrategy;
+import cn.learn.beans.processor.BeanPostProcessor;
+import cn.learn.beans.processor.InstantiationAwareBeanPostProcessor;
+import cn.learn.beans.support.DisposableBean;
+import cn.learn.beans.support.DisposableBeanAdapter;
+import cn.learn.beans.support.InitializingBean;
+import cn.learn.exception.BeansException;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,6 +24,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @program: SpringLite
@@ -129,10 +130,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     private void setConfigPropertyValues(String beanName, Object bean, BeanDefinition beanDefinition) {
         try {
             // 获取 pvArray——属性值数组
-            PropertyValue[] pvArray = beanDefinition.getPropertyValues().getPropertyValuesArray();
-            for (PropertyValue propertyValue : pvArray) {
+            Set<Map.Entry<String, Object>> propertyValueEntries = beanDefinition.getPropertyValues().getPropertyValueEntries();
+            for (Map.Entry<String, Object> propertyValue : propertyValueEntries) {
 
-                String name = propertyValue.getName();
+                String name = propertyValue.getKey();
                 Object value = propertyValue.getValue();
 
                 // fixme：暂时没有处理循环依赖的问题，后续处理

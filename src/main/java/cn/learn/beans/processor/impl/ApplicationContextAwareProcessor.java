@@ -1,5 +1,6 @@
-package cn.learn.aware;
+package cn.learn.beans.processor.impl;
 
+import cn.learn.aware.ApplicationContextAware;
 import cn.learn.exception.BeansException;
 import cn.learn.beans.processor.BeanPostProcessor;
 import cn.learn.context.ApplicationContext;
