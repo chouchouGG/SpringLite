@@ -4,7 +4,7 @@ import cn.learn.exception.BeansException;
 import cn.learn.beanfactory.ConfigurableListableBeanFactory;
 
 /**
- * BeanFactoryPostProcessor 是 Spring 框架中的一个扩展接口，用于在 Spring 容器的标准初始化过程之后、Bean 实例化之前执行自定义的操作。
+ * BeanFactoryPostProcessor 是 Spring 框架中用来在 BeanFactory 标准初始化之后修改其内部 Bean 定义的接口。
  */
 public interface BeanFactoryPostProcessor {
 

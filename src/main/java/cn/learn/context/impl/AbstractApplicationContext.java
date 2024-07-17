@@ -1,8 +1,13 @@
 package cn.learn.context.impl;
 
-import cn.learn.beans.processor.impl.ApplicationContextAwareProcessor;
+import cn.learn.beanfactory.ConfigurableListableBeanFactory;
+import cn.learn.beanfactory.factory.DefaultListableBeanFactory;
 import cn.learn.beans.processor.BeanFactoryPostProcessor;
 import cn.learn.beans.processor.BeanPostProcessor;
+import cn.learn.beans.processor.impl.AwareApplicationContextProcessor;
+import cn.learn.beans.processor.impl.DefaultAopProxyCreateProcessor;
+import cn.learn.beans.processor.impl.DependencyInjectionAnnotationProcessor;
+import cn.learn.beans.processor.impl.PropertyPlaceholderConfigurer;
 import cn.learn.context.ConfigurableApplicationContext;
 import cn.learn.context.eventsystem.ApplicationEventListener;
 import cn.learn.context.eventsystem.event.ApplicationEvent;
@@ -12,11 +17,11 @@ import cn.learn.context.eventsystem.multicaster.ApplicationEventMulticaster;
 import cn.learn.context.eventsystem.multicaster.SimpleApplicationEventMulticaster;
 import cn.learn.core.io.loader.DefaultResourceLoader;
 import cn.learn.exception.BeansException;
-import cn.learn.beanfactory.ConfigurableListableBeanFactory;
-import cn.learn.beanfactory.factory.DefaultListableBeanFactory;
 import lombok.Getter;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 
@@ -27,30 +32,39 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
     private ApplicationEventMulticaster applicationEventMulticaster;
 
+    //  BeanFactory 标准初始化之后调用的处理器集合
+    private final List<BeanFactoryPostProcessor> BeanFactoryPostProcessors = new ArrayList<>();
+
     /**
      * ApplicationContext 启动时的核心方法
      */
     @Override
     public void refresh() throws BeansException {
-        // 1. 【创建并加载】： 创建 BeanFactory，并通过读取配置文件或其他方式加载 Bean 定义。
+        // 【创建并加载】： 创建 BeanFactory，并通过读取配置文件或其他方式加载 Bean 定义。
         createBeanFactoryAndLoadBeanDefinition();
 
-        // 3. 【执行处理方法】：执行 BeanFactoryPostProcessor，这些处理器可以在 Bean 实例化之前修改 Bean 的定义。
-        // 假设有一个属性值是占位符形式，比如 "${database.url}"，可用于解析占位符并替换实际值
-        callBeanFactoryPostProcessors(getBeanFactory());
+        // 【初始化内置的 BeanFactoryPostProcessor】
+        initBeanFactoryPostProcessor();
 
-        // 4. 【初始化处理器】：注册 BeanPostProcessor。处理器将在 Bean 初始化的前后执行预设的处理逻辑。
-        // 这里负责将所有的处理器添加到 bean 工厂的处理器列表中，具体处理器对哪些 bean 生效是由处理器自己控制。
+        // 【执行 BeanFactoryPostProcessor 处理方法】
+        invokeBeanFactoryPostProcessors(getBeanFactory());
+
+        // 【初始化 BeanPostProcessor 处理器】
         initBeanPostProcessors(getBeanFactory());
 
-        // 5. 【初始化事件机制】
+        // 【初始化事件机制】
         initEventHandling(getBeanFactory());
 
-        // 7. note：【单例实例化】：采取主动预加载单例Bean对象，在应用上下文加载时所有单例 Bean 都已实例化。
+        // 【预热单例Bean】：
         getBeanFactory().preInstantiateSingletons();
 
-        // 8. 发布容器刷新完成事件
+        // 【发布应用上下文刷新完成事件】
         finishRefresh();
+    }
+
+    private void initBeanFactoryPostProcessor() {
+        // 【添加 XXX.properties 文件解析器】（加载 properties 文件，替换Xml文件配置的占位符（不替换@Value配置的占位符））
+        BeanFactoryPostProcessors.add(new PropertyPlaceholderConfigurer());
     }
 
     private void initEventHandling(ConfigurableListableBeanFactory beanFactory) {
@@ -68,18 +82,30 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
     protected abstract DefaultListableBeanFactory getBeanFactory();
 
-    private void callBeanFactoryPostProcessors(ConfigurableListableBeanFactory beanFactory) {
-        Map<String, BeanFactoryPostProcessor> processors = beanFactory.getBeansOfType(BeanFactoryPostProcessor.class);
-        for (BeanFactoryPostProcessor processor : processors.values()) {
+    /**
+     * 执行 BeanFactoryPostProcessor，这些处理器可以在 BeanDefinition 注册后修改定义。假设有一个属性值是占位符形式，比如 "${database.url}"，可用于解析占位符并替换实际值
+     * @param beanFactory
+     */
+    private void invokeBeanFactoryPostProcessors(ConfigurableListableBeanFactory beanFactory) {
+        for (BeanFactoryPostProcessor processor : this.BeanFactoryPostProcessors) {
             processor.postProcessBeanFactory(beanFactory);
         }
     }
 
+    /**
+     * 注册 BeanPostProcessor。处理器将在 Bean 初始化的前后执行预设的处理逻辑。这里负责将所有的处理器添加到 bean 工厂的处理器列表中，具体处理器对哪些 bean 生效是由处理器自己控制。
+     */
     private void initBeanPostProcessors(ConfigurableListableBeanFactory beanFactory) {
-        // 添加【应用上下文感知处理器】：感知处理器是一种特殊的处理器，作为扩展其本质也是利用 BeanPostProcessors 提供的的功能
-        beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
+        // 1. 添加【应用上下文感知处理器】：感知处理器是一种特殊的处理器，作为扩展其本质也是利用 BeanPostProcessors 提供的的功能
+        beanFactory.addBeanPostProcessor(new AwareApplicationContextProcessor(this));
 
-        // 注册所有的自定义的 BeanPostProcessor 处理器。
+        // 2. 添加【依赖注入注解处理器】：处理 @Autowired 和 @Value 注解
+        beanFactory.addBeanPostProcessor(new DependencyInjectionAnnotationProcessor(this.getBeanFactory()));
+
+        // 3. 添加【Aop代理类创建处理器】：DefaultAopProxyCreateProcessor
+        beanFactory.addBeanPostProcessor(new DefaultAopProxyCreateProcessor(this.getBeanFactory()));
+
+        // 3. 添加自定义的 BeanPostProcessor 的处理器（通过Xml配置文件预先配置）。
         Map<String, BeanPostProcessor> processors = beanFactory.getBeansOfType(BeanPostProcessor.class);
         for (BeanPostProcessor processor : processors.values()) {
             beanFactory.addBeanPostProcessor(processor);
@@ -133,6 +159,5 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     public <T> T getBean(String name, Class<T> requiredType) throws BeansException {
         return getBeanFactory().getBean(name, requiredType);
     }
-
 
 }

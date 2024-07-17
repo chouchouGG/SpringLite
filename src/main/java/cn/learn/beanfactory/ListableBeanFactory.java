@@ -3,7 +3,6 @@ package cn.learn.beanfactory;
 import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.exception.BeansException;
 
-import java.util.Collection;
 import java.util.Map;
 
 
@@ -28,4 +27,5 @@ public interface ListableBeanFactory extends BeanFactory {
 
     BeanDefinition[] getBeanDefinitions();
 
+    <T> String[] getBeanNamesOfType(Class<T> fieldType);
 }

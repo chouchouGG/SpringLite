@@ -1,15 +1,17 @@
 package cn.learn.beanfactory.factory;
 
+import cn.learn.beanfactory.ListableBeanFactory;
 import cn.learn.beanfactory.factoryBean.FactoryBean;
 import cn.learn.beanfactory.factoryBean.FactoryBeanRegistrySupport;
 import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.beanfactory.ConfigurableBeanFactory;
 import cn.learn.beans.processor.BeanPostProcessor;
+import cn.learn.exception.BeansException;
 import cn.learn.util.ClassUtils;
+import cn.learn.util.StringValueResolver;
 import lombok.Getter;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @program: SpringLite
@@ -18,11 +20,14 @@ import java.util.List;
  * @create: 2024-07-04 23:45
  **/
 @Getter
-public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport implements ConfigurableBeanFactory {
+public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport implements ConfigurableBeanFactory, ListableBeanFactory {
 
      private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
      private final ClassLoader beanClassLoader = ClassUtils.getDefaultClassLoader();
+
+     private final List<StringValueResolver> embeddedValueResolvers = new ArrayList<>();
+
 
     /**
      * 根据 Bean 的名称和类型获取 Bean 实例。
@@ -37,6 +42,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         return (T) getBean(name);
     }
 
+
     /**
      * 带参的获取Bean方法
      * @return 返回bean对象
@@ -45,7 +51,6 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
     public Object getBean(String name, Object... args) {
         return doGetBean(name, args);
     }
-
 
     protected <T> T doGetBean(final String name, final Object[] args) {
         // 1. 尝试从单例缓存中获取 Bean
@@ -79,6 +84,22 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         }
     }
 
+    @Override
+    public <T> String[] getBeanNamesOfType(Class<T> requiredType) {
+        ArrayList<String> beanNames = new ArrayList<>();
+        for (Map.Entry<String, BeanDefinition> entry : getBeanDefinitionMap().entrySet()) {
+            String beanName = entry.getKey();
+            Class<?> beanClass = entry.getValue().getBeanClass();
+            // 如果需要的类型是当前类的父类
+            if (requiredType.isAssignableFrom(beanClass)) {
+                beanNames.add(beanName);
+            }
+        }
+        return beanNames.toArray(new String[0]);
+    }
+
+    protected abstract Map<String, BeanDefinition> getBeanDefinitionMap();
+
     /**
      * 根据 Bean 定义和构造函数参数，创建指定名称的 Bean 实例。
      *
@@ -95,4 +116,17 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         this.beanPostProcessors.add(beanPostProcessor);
     }
 
+    @Override
+    public String resolveEmbeddedValue(String value) {
+        String result = value;
+        for (StringValueResolver resolver : this.embeddedValueResolvers) {
+            result = resolver.resolveStringValue(result);
+        }
+        return result;
+    }
+
+    @Override
+    public void addEmbeddedValueResolver(StringValueResolver valueResolver) {
+        this.embeddedValueResolvers.add(valueResolver);
+    }
 }

@@ -5,9 +5,7 @@ import cn.learn.exception.BeansException;
 import cn.learn.beanfactory.ConfigurableListableBeanFactory;
 import cn.learn.beans.registry.BeanDefinitionRegistry;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @program: SpringLite
@@ -19,6 +17,11 @@ public class DefaultListableBeanFactory extends  AbstractAutowireCapableBeanFact
         implements BeanDefinitionRegistry, ConfigurableListableBeanFactory {
 
     private final Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
+
+    @Override
+    protected Map<String, BeanDefinition> getBeanDefinitionMap() {
+        return this.beanDefinitionMap;
+    }
 
     // note: DefaultListableBeanFactory 拥有 BeanDefinition 的注册能力（由于实现了 BeanDefinitionRefistry 接口）
     @Override
@@ -64,6 +67,9 @@ public class DefaultListableBeanFactory extends  AbstractAutowireCapableBeanFact
         return beanDefinition;
     }
 
+    /**
+     * 采取主动预加载单例Bean对象，在应用上下文加载时所有单例 Bean 都已实例化。
+     */
     @Override
     public void preInstantiateSingletons() throws BeansException {
         String[] beanNames = getBeanDefinitionNames();

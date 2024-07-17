@@ -1,12 +1,8 @@
 package cn.learn.aop.aspect.interceptor;
 
-import cn.learn.annotation.Component;
+import cn.learn.aop.aspect.advice.MethodAroundAdvice;
 import cn.learn.aop.aspect.joinpoint.Joinpoint;
 import cn.learn.aop.aspect.joinpoint.ProceedingJoinPoint;
-import cn.learn.aop.aspect.advice.MethodAroundAdvice;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 /**
  * 环绕通知拦截器

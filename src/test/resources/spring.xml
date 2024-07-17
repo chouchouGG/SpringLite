@@ -4,17 +4,13 @@
     <!--UserService-->
     <bean id="userService" class="cn.learn.bean.UserService"/>
 
-    <!--DefaultProxyCreateProcessor-->
-    <bean class="cn.learn.beans.processor.impl.DefaultAopProxyCreator"/>
+<!--    &lt;!&ndash;DefaultProxyCreateProcessor&ndash;&gt;-->
+<!--    <bean class="cn.learn.beans.processor.impl.DefaultAopProxyCreateProcessor"/>-->
 
     <!--UserServiceBeforeAdvice-->
-    <bean id="userServiceBeforeAdvice" class="cn.learn.aop.UserServiceBeforeAdvice"/>
     <bean id="userServiceAroundAdvice" class="cn.learn.aop.UserServiceAroundAdvice"/>
 
     <!--MethodBeforeAdviceInterceptor-->
-    <bean id="methodBeforeInterceptor" class="cn.learn.aop.aspect.interceptor.MethodBeforeAdviceInterceptor">
-        <property name="advice" ref="userServiceBeforeAdvice"/>
-    </bean>
     <bean id="methodAroundInterceptor" class="cn.learn.aop.aspect.interceptor.MethodAroundAdviceInterceptor">
         <property name="advice" ref="userServiceAroundAdvice"/>
     </bean>

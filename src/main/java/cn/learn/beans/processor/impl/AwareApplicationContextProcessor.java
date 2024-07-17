@@ -10,7 +10,7 @@ import lombok.AllArgsConstructor;
  * 该类实现了 BeanPostProcessor，用于在 Bean 初始化之前将 ApplicationContext 注入到实现 ApplicationContextAware 接口的 Bean 中。为 Bean 扩展应用上下文的感知功能。
  */
 @AllArgsConstructor
-public class ApplicationContextAwareProcessor implements BeanPostProcessor {
+public class AwareApplicationContextProcessor implements BeanPostProcessor {
 
     // 保存应用上下文的实例，供后续注入使用。
     private final ApplicationContext applicationContext;

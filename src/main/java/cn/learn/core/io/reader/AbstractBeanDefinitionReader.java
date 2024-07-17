@@ -2,8 +2,6 @@ package cn.learn.core.io.reader;
 
 import cn.learn.beans.registry.BeanDefinitionRegistry;
 import cn.learn.core.io.loader.ResourceLoader;
-import cn.learn.core.io.loader.DefaultResourceLoader;
-import lombok.Getter;
 
 
 public abstract class AbstractBeanDefinitionReader implements BeanDefinitionReader {

@@ -12,13 +12,15 @@ import cn.learn.beans.entity.BeanReference;
 import cn.learn.beans.instantiate.InstantiationStrategy;
 import cn.learn.beans.instantiate.SimpleInstantiationStrategy;
 import cn.learn.beans.processor.BeanPostProcessor;
-import cn.learn.beans.processor.InstantiationAwareBeanPostProcessor;
+import cn.learn.beans.processor.impl.DefaultAopProxyCreateProcessor;
+import cn.learn.beans.processor.impl.DependencyInjectionAnnotationProcessor;
 import cn.learn.beans.support.DisposableBean;
 import cn.learn.beans.support.DisposableBeanAdapter;
 import cn.learn.beans.support.InitializingBean;
 import cn.learn.exception.BeansException;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -35,6 +37,7 @@ import java.util.Set;
  **/
 @Getter
 @Setter
+@Slf4j
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
 
     // note：策略模式：默认使用【简单实例化策略 SimpleInstantiationStrategy】
@@ -50,7 +53,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     protected Object createBean(String beanName, BeanDefinition beanDefinition, Object[] args) {
         Object bean = null;
 
-        // 【实例化之前的操作】，如果是FactoryBean，就需要直接返回其代理 bean 对象
+        // 【实例化之前操作】，如果是FactoryBean或者需要Aop代理，就需要直接返回其代理 bean 对象
         bean = resolveBeforeInstantiation(beanName, beanDefinition);
         if (null != bean) {
             return bean;
@@ -58,6 +61,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
         // 1. 【实例化 Bean】，执行构造方法
         bean = createBeanInstance(beanDefinition, args);
+
+        // 依赖注入
+        processDependencyInjection(beanName, beanDefinition);
 
         // 2. 【设置属性值】（根据配置文件填充属性值，会覆盖实例化时的参数 args 设置）
         setConfigPropertyValues(beanName, bean, beanDefinition);
@@ -76,6 +82,32 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         return bean;
     }
 
+    /**
+     * （此处自己的设计是，并没有立即注入到Bean对象中，而是像之前加载Xml文件中的属性配置的方式，将要注入的内容放入了 BeanDefinition 中的 PropertyValues 集合中，在下一步属性值的设置中才将依赖的值真正设置到Bean对象的属性中）
+     * @param beanName
+     * @param beanDefinition
+     */
+    private void processDependencyInjection(String beanName, BeanDefinition beanDefinition) {
+        DependencyInjectionAnnotationProcessor DIAProcessor = null;
+
+        for (BeanPostProcessor processor : getBeanPostProcessors()) {
+            if (processor instanceof DependencyInjectionAnnotationProcessor) {
+                DIAProcessor = (DependencyInjectionAnnotationProcessor) processor;
+                break;
+            }
+        }
+
+        if (null == DIAProcessor) {
+            return;
+        }
+
+        try {
+            DIAProcessor.postProcessPropertyValues(beanDefinition);
+        } catch (BeansException e) {
+            throw new RuntimeException("依赖处理过程产生错误: " + beanName, e);
+        }
+    }
+
     protected Object resolveBeforeInstantiation(String beanName, BeanDefinition beanDefinition) {
         Object bean = applyBeanPostProcessorsBeforeInstantiation(beanDefinition.getBeanClass(), beanName);
         if (null != bean) {
@@ -88,8 +120,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         List<BeanPostProcessor> beanPostProcessors = getBeanPostProcessors();
         // 循环遍历所有的处理器，执行bean实例化之前的操作（目前这一步主要进行是否需要代理的检查）
         for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
-            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
-                Object result = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessBeforeInstantiation(beanClass, beanName);
+            if (beanPostProcessor instanceof DefaultAopProxyCreateProcessor) {
+                Object result = ((DefaultAopProxyCreateProcessor) beanPostProcessor).postProcessBeforeInstantiation(beanClass, beanName);
                 if (null != result) {
                     return result;
                 }
@@ -129,7 +161,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      */
     private void setConfigPropertyValues(String beanName, Object bean, BeanDefinition beanDefinition) {
         try {
-            // 获取 pvArray——属性值数组
+            // 获取属性值集合，并依次处理各个属性值
             Set<Map.Entry<String, Object>> propertyValueEntries = beanDefinition.getPropertyValues().getPropertyValueEntries();
             for (Map.Entry<String, Object> propertyValue : propertyValueEntries) {
 
@@ -230,7 +262,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         Object result = bean;
         // 回调：循环处理所有 BeanPostProcessor 的【前置处理】方法
         List<BeanPostProcessor> beanPostProcessors = getBeanPostProcessors();
-        for (BeanPostProcessor processor : beanPostProcessors) {
+        for (BeanPostProcessor processor : getBeanPostProcessors()) {
             Object current = processor.postProcessBeforeInitialization(result, beanName);
             if (null == current) {
                 return result;

@@ -4,6 +4,7 @@ import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.exception.BeansException;
 import cn.learn.beanfactory.singleton.SingletonBeanRegistry;
 import cn.learn.beans.processor.BeanPostProcessor;
+import cn.learn.util.StringValueResolver;
 
 /**
  * @program: SpringLite
@@ -17,12 +18,10 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
 
     String SCOPE_PROTOTYPE = "prototype";
 
-
     /**
      * 获取指定名称的 BeanDefinition。
      */
     BeanDefinition getBeanDefinition(String beanName) throws BeansException;
-
 
     /**
      * 添加一个 BeanPostProcessor 实例。
@@ -30,4 +29,7 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
      */
     void addBeanPostProcessor(BeanPostProcessor beanPostProcessor);
 
+    String resolveEmbeddedValue(String value);
+
+    void addEmbeddedValueResolver(StringValueResolver valueResolver);
 }

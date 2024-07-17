@@ -7,12 +7,18 @@ public interface BeanPostProcessor {
 
     /**
      * 在 Bean 对象执行初始化方法之前执行
+     * @return  默认返回传入的 <code>bean</code>，表示继续后续处理器的处理流程。特殊情况下，可以通过重写方法并返回 <code>null</code> 来终止处理器的处理流程。
      */
-    Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException;
+    default Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        return bean;
+    }
 
     /**
      * 在 Bean 对象执行初始化方法之后执行
+     * @return 默认返回传入的 <code>bean</code>，表示继续后续处理器的处理流程。特殊情况下，可以通过重写方法并返回 <code>null</code> 来终止处理器的处理流程。
      */
-    Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException;
+    default Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        return bean;
+    }
 
 }

@@ -15,8 +15,8 @@ public class ComponentScanner {
     public Set<BeanDefinition> scanForComponents(String basePackage) {
         Set<BeanDefinition> candidates = new LinkedHashSet<>();
         Set<Class<?>> classes = ClassUtil.scanPackageByAnnotation(basePackage, Component.class);
-        for (Class<?> beanClass : classes) {
-            candidates.add(new BeanDefinition(beanClass));
+        for (Class<?> clazz : classes) {
+            candidates.add(new BeanDefinition(clazz));
         }
         return candidates;
     }

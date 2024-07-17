@@ -19,17 +19,17 @@ public class AopProxyConfig {
     private final boolean DEFAULT_JDK_PROXY = true;
 
     /**
-     * 被代理的目标对象
+     * 被代理的目标对象（用于存储目标对象的一些状态信息）
      */
     private TargetSource targetSource;
 
     /**
-     * 方法拦截器
+     * 方法拦截器（封装通知的整体调用逻辑）
      */
     private MethodAdviceInterceptor methodInterceptor;
 
     /**
-     * 方法匹配器(检查目标方法是否符合通知条件)
+     * 方法匹配器（检查目标方法是否匹配切入点表达式）：切入点表达式中的类类型匹配，证明需要Aop代理，只有方法匹配才需要执行相应通知
      */
     private MethodMatcher methodMatcher;
 

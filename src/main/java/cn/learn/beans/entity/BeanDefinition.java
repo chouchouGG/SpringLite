@@ -1,5 +1,6 @@
 package cn.learn.beans.entity;
 
+import cn.hutool.core.util.StrUtil;
 import cn.learn.exception.BeansException;
 import cn.learn.beanfactory.ConfigurableBeanFactory;
 import lombok.Getter;
@@ -72,4 +73,6 @@ public class BeanDefinition {
     public int hashCode() {
         return Objects.hash(beanClass, initMethodName, destroyMethodName, scope, propertyValues, singleton, prototype);
     }
+
+
 }

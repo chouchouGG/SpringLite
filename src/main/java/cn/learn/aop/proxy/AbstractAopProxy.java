@@ -1,6 +1,5 @@
 package cn.learn.aop.proxy;
 
-import cn.learn.aop.proxy.AopProxy;
 import cn.learn.util.ClassUtils;
 
 import java.lang.reflect.InvocationHandler;

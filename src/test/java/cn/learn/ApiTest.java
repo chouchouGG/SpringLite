@@ -80,7 +80,7 @@ public class ApiTest {
 
     @Test
     public void test_aop() {
-        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml", "classpath:spring-scan.xml");
         IUserService userService = applicationContext.getBean("userService", IUserService.class);
         String result = userService.queryUserInfo();
         System.out.println("测试结果：" + result);

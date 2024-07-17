@@ -22,7 +22,10 @@ public class BeanDefinitionScanner extends ComponentScanner {
         this.registry = registry;
     }
 
-    public void doScan(String... basePackages) {
+    /**
+     * 只负责将带有 @Component 注解的类的 Class 对象包装为 BeanDefinition，并注册到 Bean 工厂。
+     */
+    public void doScanOnlyForSetBeanClass(String... basePackages) {
         for (String basePackage : basePackages) {
             Set<BeanDefinition> components = super.scanForComponents(basePackage);
             for (BeanDefinition beanDefinition : components) {
@@ -31,6 +34,7 @@ public class BeanDefinitionScanner extends ComponentScanner {
                 if (StrUtil.isNotEmpty(beanScope)) {
                     beanDefinition.setScope(beanScope);
                 }
+
                 // 注册 BeanDefinition 到 Bean 工厂
                 registry.registerBeanDefinition(resolveBeanName(beanDefinition), beanDefinition);
             }
@@ -38,7 +42,7 @@ public class BeanDefinitionScanner extends ComponentScanner {
     }
 
     /**
-     * 获取Bean的作用域：singleton、prototype
+     * 处理@Scope注解，获取Bean的作用域：singleton、prototype
      */
     private String resolveBeanScope(BeanDefinition beanDefinition) {
         Class<?> beanClass = beanDefinition.getBeanClass();
@@ -50,7 +54,7 @@ public class BeanDefinitionScanner extends ComponentScanner {
     }
 
     /**
-     * 获取Bean的名称，如果没有配置，默认为类名的首字母小写
+     * 获取Bean的名称，如果@Component没有配置，则默认为类名的首字母小写
      */
     private String resolveBeanName(BeanDefinition beanDefinition) {
         Class<?> beanClass = beanDefinition.getBeanClass();

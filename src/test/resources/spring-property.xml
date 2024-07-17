@@ -2,8 +2,10 @@
 <beans>
 
     <bean class="cn.learn.beans.processor.impl.PropertyPlaceholderConfigurer">
-        <property name="resourceLoadinglocation" value="classpath:token.properties"/>
+        <property name="resourceLoadingLocation" value="classpath:token.properties"/>
     </bean>
+
+    <bean class="cn.learn.bean.UserDao"/>
 
     <bean id="userService" class="cn.learn.bean.UserService">
         <property name="token" value="${token}"/>
