@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
 /**
- * 基于 JDK 实现的代理类
+ * note：基于 JDK 实现的代理类，当前只实现了基于接口的JDK动态代理，所以在接收代理类时要通过接口，而不能使用目标对象的类型
  */
 public class JdkDynamicAopProxy extends AbstractAopProxy implements InvocationHandler {
 
@@ -57,6 +57,11 @@ public class JdkDynamicAopProxy extends AbstractAopProxy implements InvocationHa
         return method.invoke(target, args);
     }
 
+    /**
+     * 在测试阶段，如果想要输出JDK动态代理类的字节码文件时，可以使用此方法来将代理类的字节码存到当前类路径下。
+     * @param proxy
+     * @param path
+     */
     public void saveProxyClass(Proxy proxy, String path) {
         String proxyName = proxy.getClass().getName();
         byte[] proxyClass = ProxyGenerator.generateProxyClass(proxyName, getTargetClassInterfaces());

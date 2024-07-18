@@ -18,6 +18,9 @@ public interface SingletonBeanRegistry {
      */
     void destroySingletons();
 
+    /**
+     * 注册单例对象：将完整的单例对象添加到一级缓存中
+     */
     void registerSingleton(String beanName, Object singletonObject);
 
 }

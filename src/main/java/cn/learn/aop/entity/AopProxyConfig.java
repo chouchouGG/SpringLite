@@ -2,7 +2,7 @@ package cn.learn.aop.entity;
 
 import cn.learn.aop.aspect.interceptor.MethodAdviceInterceptor;
 import cn.learn.aop.aspect.pointcut.MethodMatcher;
-import cn.learn.aop.proxy.autoproxy.ProxyFactory;
+import cn.learn.aop.proxy.ProxyFactory;
 import lombok.*;
 
 /**

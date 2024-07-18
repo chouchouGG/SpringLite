@@ -8,6 +8,9 @@ import cn.learn.bean.UserService;
 import cn.learn.bean.UserServiceInterceptor;
 import cn.learn.context.impl.ClassPathXmlApplicationContext;
 import cn.learn.event.CustomEvent;
+import cn.learn.home.Husband;
+import cn.learn.home.Mugou;
+import cn.learn.home.Wife;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
@@ -80,7 +83,7 @@ public class ApiTest {
 
     @Test
     public void test_aop() {
-        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml", "classpath:spring-scan.xml");
+         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml", "classpath:spring-scan.xml");
         IUserService userService = applicationContext.getBean("userService", IUserService.class);
         String result = userService.queryUserInfo();
         System.out.println("测试结果：" + result);
@@ -101,4 +104,12 @@ public class ApiTest {
         System.out.println("测试结果：" + userService.queryUserInfo());
     }
 
+    @Test
+    public void test_circular() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring-home.xml");
+        Husband husband = applicationContext.getBean("husband", Husband.class);
+        Mugou wife = applicationContext.getBean("wife", Wife.class);
+        System.out.println("老公的媳妇：" + husband.queryWife());
+        System.out.println("媳妇的老公：" + wife.queryHusband());
+    }
 }

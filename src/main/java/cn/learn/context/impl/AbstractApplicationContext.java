@@ -2,12 +2,10 @@ package cn.learn.context.impl;
 
 import cn.learn.beanfactory.ConfigurableListableBeanFactory;
 import cn.learn.beanfactory.factory.DefaultListableBeanFactory;
+import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.beans.processor.BeanFactoryPostProcessor;
 import cn.learn.beans.processor.BeanPostProcessor;
-import cn.learn.beans.processor.impl.AwareApplicationContextProcessor;
-import cn.learn.beans.processor.impl.DefaultAopProxyCreateProcessor;
-import cn.learn.beans.processor.impl.DependencyInjectionAnnotationProcessor;
-import cn.learn.beans.processor.impl.PropertyPlaceholderConfigurer;
+import cn.learn.beans.processor.impl.*;
 import cn.learn.context.ConfigurableApplicationContext;
 import cn.learn.context.eventsystem.ApplicationEventListener;
 import cn.learn.context.eventsystem.event.ApplicationEvent;
@@ -55,7 +53,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         // 【初始化事件机制】
         initEventHandling(getBeanFactory());
 
-        // 【预热单例Bean】：
+        // 【预加载单例Bean】：
         getBeanFactory().preInstantiateSingletons();
 
         // 【发布应用上下文刷新完成事件】
@@ -104,6 +102,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
         // 3. 添加【Aop代理类创建处理器】：DefaultAopProxyCreateProcessor
         beanFactory.addBeanPostProcessor(new DefaultAopProxyCreateProcessor(this.getBeanFactory()));
+
+        // 【添加内部通知拦截器加载器】（加载各个拦截器，将其注册为Bean）
+        beanFactory.addBeanPostProcessor(new InternalAdviceInterceptorloader(this.getBeanFactory()));
 
         // 3. 添加自定义的 BeanPostProcessor 的处理器（通过Xml配置文件预先配置）。
         Map<String, BeanPostProcessor> processors = beanFactory.getBeansOfType(BeanPostProcessor.class);

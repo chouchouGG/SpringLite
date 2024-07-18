@@ -7,11 +7,13 @@ import cn.learn.aware.BeanClassLoaderAware;
 import cn.learn.aware.BeanFactoryAware;
 import cn.learn.aware.BeanNameAware;
 import cn.learn.beanfactory.AutowireCapableBeanFactory;
+import cn.learn.beans.ObjectFactory;
 import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.beans.entity.BeanReference;
 import cn.learn.beans.instantiate.InstantiationStrategy;
 import cn.learn.beans.instantiate.SimpleInstantiationStrategy;
 import cn.learn.beans.processor.BeanPostProcessor;
+import cn.learn.beans.processor.InstantiationAwareBeanPostProcessor;
 import cn.learn.beans.processor.impl.DefaultAopProxyCreateProcessor;
 import cn.learn.beans.processor.impl.DependencyInjectionAnnotationProcessor;
 import cn.learn.beans.support.DisposableBean;
@@ -51,16 +53,40 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      */
     @Override
     protected Object createBean(String beanName, BeanDefinition beanDefinition, Object[] args) {
-        Object bean = null;
-
-        // 【实例化之前操作】，如果是FactoryBean或者需要Aop代理，就需要直接返回其代理 bean 对象
-        bean = resolveBeforeInstantiation(beanName, beanDefinition);
+        // 【实例化之前操作】，如果是FactoryBean，就需要直接返回其代理 bean 对象
+        Object bean = resolveBeforeInstantiation(beanName, beanDefinition);
         if (null != bean) {
             return bean;
         }
 
+        return doCreateBean(beanName, beanDefinition, args);
+    }
+
+
+    protected Object doCreateBean(String beanName, BeanDefinition beanDefinition, Object[] args) {
+        Object bean = null;
+
         // 1. 【实例化 Bean】，执行构造方法
         bean = createBeanInstance(beanDefinition, args);
+
+        // 处理循环依赖，需要将实例化之后的Bean提前暴露出来
+        if (beanDefinition.isSingleton()) {
+            Object finalBean = bean;
+            // 提前暴露对象，放入到三级缓存中
+            // 当其他 Bean 依赖当前 Bean 时，Spring 会从三级缓存中获取 ObjectFactory 并调用重写的 getObject 方法，从而获取早期 Bean 引用。
+            addSingletonFactory(beanName, new ObjectFactory<Object>() {
+                @Override
+                public Object getObject() throws BeansException {
+                    return getEarlyBeanReference(beanName, beanDefinition, finalBean);
+                }
+            });
+        }
+
+        // 实例化后判断
+        boolean continueWithPropertyPopulation = applyBeanPostProcessorsAfterInstantiation(beanName, bean);
+        if (!continueWithPropertyPopulation) {
+            return bean;
+        }
 
         // 依赖注入
         processDependencyInjection(beanName, beanDefinition);
@@ -74,12 +100,46 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // 注册【销毁方法】
         registerDisposableBeanIfNecessary(beanName, bean, beanDefinition);
 
-        // 4. 【缓存】只有Bean的作用域是单例时，才缓存该单例Bean
+        // 4. 【缓存】判断 SCOPE_SINGLETON、SCOPE_PROTOTYPE，只有Bean的作用域是单例时，才缓存该单例Bean
+        Object exposedObject = bean;
         if (beanDefinition.isSingleton()) {
-            addSingleton(beanName, bean);
+            // 【获取对象】
+            exposedObject = getSingleton(beanName);
+            // 【注册对象】：这个注册操作就是把实际的对象放到'一级缓存'中，因为此时该对象已经是一个成品对象了。
+            registerSingleton(beanName, exposedObject);
+        }
+        return exposedObject;
+    }
+
+    /**
+     * Bean 实例化后对于返回 false 的对象，不在执行后续设置 Bean 对象属性的操作
+     */
+    private boolean applyBeanPostProcessorsAfterInstantiation(String beanName, Object bean) {
+        boolean continueWithPropertyPopulation = true;
+        for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+                InstantiationAwareBeanPostProcessor instantiationAwareBeanPostProcessor = (InstantiationAwareBeanPostProcessor) beanPostProcessor;
+                if (!instantiationAwareBeanPostProcessor.postProcessAfterInstantiation(bean, beanName)) {
+                    continueWithPropertyPopulation = false;
+                    break;
+                }
+            }
+        }
+        return continueWithPropertyPopulation;
+    }
+
+    protected Object getEarlyBeanReference(String beanName, BeanDefinition beanDefinition, Object bean) {
+        Object exposedObject = bean;
+        for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+                exposedObject = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).getEarlyBeanReference(exposedObject, beanName);
+                if (null == exposedObject) {
+                    return null;
+                }
+            }
         }
 
-        return bean;
+        return exposedObject;
     }
 
     /**
@@ -120,8 +180,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         List<BeanPostProcessor> beanPostProcessors = getBeanPostProcessors();
         // 循环遍历所有的处理器，执行bean实例化之前的操作（目前这一步主要进行是否需要代理的检查）
         for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
-            if (beanPostProcessor instanceof DefaultAopProxyCreateProcessor) {
-                Object result = ((DefaultAopProxyCreateProcessor) beanPostProcessor).postProcessBeforeInstantiation(beanClass, beanName);
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+                Object result = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessBeforeInstantiation(beanClass, beanName);
                 if (null != result) {
                     return result;
                 }
@@ -261,7 +321,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     public Object applyBeanPostProcessorsBeforeInitialization(Object bean, String beanName) throws BeansException {
         Object result = bean;
         // 回调：循环处理所有 BeanPostProcessor 的【前置处理】方法
-        List<BeanPostProcessor> beanPostProcessors = getBeanPostProcessors();
+        List<BeanPostProcessor> beanPostProcessors = getBeanPostProcessors(); // fixme: 此句删除
         for (BeanPostProcessor processor : getBeanPostProcessors()) {
             Object current = processor.postProcessBeforeInitialization(result, beanName);
             if (null == current) {

@@ -1,5 +1,6 @@
 package cn.learn.beans.processor;
 
+import cn.learn.beanfactory.singleton.DefaultSingletonBeanRegistry;
 import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.exception.BeansException;
 
@@ -15,12 +16,22 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
         return null;
     }
 
+    default boolean postProcessAfterInstantiation(Object bean, String beanName) throws BeansException {
+        return true;
+    }
 
     /**
      * 在 Bean 对象实例化完成后，设置属性操作之前执行此方法，修改 Bean 的属性值（PropertyValues）
      */
     default void postProcessPropertyValues(BeanDefinition beanDef) throws BeansException {
         return;
+    }
+
+    /**
+     * <p>将工厂对象提前存放到三级缓存 {@link DefaultSingletonBeanRegistry#singletonFactories} 中</p>
+     */
+    default Object getEarlyBeanReference(Object bean, String beanName) {
+        return bean;
     }
 
 }

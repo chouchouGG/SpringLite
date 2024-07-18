@@ -7,7 +7,7 @@ import cn.learn.annotation.Value;
 import lombok.Data;
 
 
-@Component("userService")
+//@Component("userService")
 @Scope
 @Data
 public class UserService implements IUserService {

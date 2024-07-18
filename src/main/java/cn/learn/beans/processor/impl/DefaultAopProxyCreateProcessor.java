@@ -6,7 +6,7 @@ import cn.learn.aop.aspect.aspector.Aspector;
 import cn.learn.aop.aspect.interceptor.MethodAdviceInterceptor;
 import cn.learn.aop.aspect.pointcut.Pointcutor;
 import cn.learn.aop.entity.AopProxyConfig;
-import cn.learn.aop.proxy.autoproxy.ProxyFactory;
+import cn.learn.aop.proxy.ProxyFactory;
 import cn.learn.aware.BeanFactoryAware;
 import cn.learn.beanfactory.BeanFactory;
 import cn.learn.beanfactory.factory.DefaultListableBeanFactory;
@@ -15,6 +15,7 @@ import cn.learn.exception.BeansException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,6 +23,9 @@ import java.util.Set;
 public class DefaultAopProxyCreateProcessor implements InstantiationAwareBeanPostProcessor, BeanFactoryAware {
 
     private DefaultListableBeanFactory beanFactory;
+
+    // fixme: 将普通的集合类包装成线程安全的集合的方式，并不是很优雅，可以使用 CopyOnWriteArraySet
+    private final Set<Object> earlyProxyReferences = Collections.synchronizedSet(new HashSet<>());
 
     public DefaultAopProxyCreateProcessor(DefaultListableBeanFactory beanFactory) {
         this.beanFactory = beanFactory;
@@ -47,13 +51,21 @@ public class DefaultAopProxyCreateProcessor implements InstantiationAwareBeanPos
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        if (!earlyProxyReferences.contains(beanName)) {
+            return wrapIfNecessary(bean, beanName);
+        }
+
+        return bean;
+    }
+
+    protected Object wrapIfNecessary(Object bean, String beanName) {
         Class<?> beanClass = bean.getClass();
         log.debug("代理检查: {}, class: {}", beanName, beanClass.getName());
 
-        // 基础设施类是 Spring AOP 的核心组成部分，不能被代理。
+        // 【检查】：基础设施类是 Spring AOP 的核心组成部分，不能被代理。
         if (isInfrastructureClass(beanClass)) {
             log.debug("跳过代理: {}, class: {}，由于其为AOP基础组成类，故无需代理。", beanName, beanClass.getName());
-            return null;
+            return bean;
         }
 
         // 获取所有的切面器，用于后续的代理处理。
@@ -69,17 +81,10 @@ public class DefaultAopProxyCreateProcessor implements InstantiationAwareBeanPos
             if (!pointcutor.classFilter(beanClass)) {
                 continue;
             }
-
             log.debug("{}, class:{} - 匹配切面: {}，需要进行代理。", beanName, beanClass.getName(), aspector.getClass().getName());
-            // 获取目标对象 targetSource
-            AopProxyConfig.TargetSource targetSource = null;
-            try {
-//                targetSource = new AopProxyConfig.TargetSource(beanClass.getDeclaredConstructor().newInstance());
-                targetSource = new AopProxyConfig.TargetSource(bean);
-                log.debug("创建代理的目标对象: {}, class: {}", beanName, beanClass.getName());
-            } catch (Exception e) {
-                throw new RuntimeException(this.getClass().getName() + "未能初始化类对象: " + beanClass.getName(), e);
-            }
+
+            AopProxyConfig.TargetSource targetSource = new AopProxyConfig.TargetSource(bean);
+            log.debug("创建代理的目标对象: {}, class: {}", beanName, beanClass.getName());
 
             // 创建 AopProxyConfig
             AopProxyConfig config = new AopProxyConfig();
@@ -88,12 +93,11 @@ public class DefaultAopProxyCreateProcessor implements InstantiationAwareBeanPos
             config.setMethodMatcher(pointcutor);
 
             log.debug("完成代理，返回代理对象。");
-            // 获取到代理对象
             return ProxyFactory.getProxy(config);
         }
 
         log.debug("{}, class:{} - 不匹配任何切面，所以无需代理。", beanName, beanClass.getName());
-        return null;
+        return bean;
     }
 
     public boolean isInfrastructureClass(Class<?> beanClass) {
@@ -105,4 +109,10 @@ public class DefaultAopProxyCreateProcessor implements InstantiationAwareBeanPos
         return false;
     }
 
+    @Override
+    public Object getEarlyBeanReference(Object bean, String beanName) {
+        earlyProxyReferences.add(beanName);
+        // 尝试进行Aop代理
+        return wrapIfNecessary(bean, beanName);
+    }
 }

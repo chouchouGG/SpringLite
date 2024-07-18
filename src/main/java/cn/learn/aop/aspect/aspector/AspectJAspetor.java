@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 /**
  * <p>本质是表示切面的类：包装了切入点表达式 {@link AspectJAspetor#pointcutor}
- * 和拦截器  {@link AspectJAspetor#adviceInterceptor}，
+ * 和拦截器  {@link AspectJAspetor#advice}，
  * 拦截器就可以看作是通知，不过是对通知调用逻辑的进一步封装。</p>
  *
  */
@@ -25,7 +25,7 @@ public class AspectJAspetor implements Aspector {
     /**
      * 通知：通知是实际执行的代码，当切入点匹配时，通知将被执行。这里的通知用于接入方法拦截器(适配器)，由适配器接入的用户自定义的通知拦截方法
      */
-    private MethodAdviceInterceptor adviceInterceptor;
+    private MethodAdviceInterceptor advice;
 
     /**
      * 切入点表达式：
@@ -43,7 +43,7 @@ public class AspectJAspetor implements Aspector {
     }
 
     public MethodAdviceInterceptor getAdviceInterceptor() {
-        return this.adviceInterceptor;
+        return this.advice;
     }
 
 }

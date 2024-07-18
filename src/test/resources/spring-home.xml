@@ -1,0 +1,29 @@
+<beans>
+    <bean id="husband" class="cn.learn.home.Husband">
+        <property name="wife" ref="wife"/>
+    </bean>
+
+    <bean id="wife" class="cn.learn.home.Wife">
+        <property name="husband" ref="husband"/>
+        <property name="mother" ref="husbandMother"/>
+    </bean>
+
+    <bean id="husbandMother" class="cn.learn.home.HusbandMother"/>
+
+    <!-- AOP 配置，验证三级缓存 -->
+<!--    <bean class="cn.bugstack.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>-->
+
+    <bean id="beforeAdvice" class="cn.learn.home.SpouseAdvice"/>
+
+    <!--暂不配置拦截器，向用户屏蔽-->
+<!--    <bean id="methodInterceptor" class="cn.bugstack.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor">-->
+<!--        <property name="advice" ref="beforeAdvice"/>-->
+<!--    </bean>-->
+
+    <bean id="pointcutAdvisor" class="cn.learn.aop.aspect.aspector.AspectJAspetor">
+        <property name="expression" value="execution(* cn.learn.home.Mugou.*(..))"/>
+        <property name="advice" ref="beforeAdvice"/>
+    </bean>
+</beans>
+
+

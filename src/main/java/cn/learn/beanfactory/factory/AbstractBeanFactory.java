@@ -5,6 +5,7 @@ import cn.learn.beanfactory.factoryBean.FactoryBean;
 import cn.learn.beanfactory.factoryBean.FactoryBeanRegistrySupport;
 import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.beanfactory.ConfigurableBeanFactory;
+import cn.learn.beans.entity.BeanReference;
 import cn.learn.beans.processor.BeanPostProcessor;
 import cn.learn.exception.BeansException;
 import cn.learn.util.ClassUtils;
@@ -52,8 +53,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         return doGetBean(name, args);
     }
 
+
     protected <T> T doGetBean(final String name, final Object[] args) {
-        // 1. 尝试从单例缓存中获取 Bean
+        // 1. 依次从三层缓存中尝试获取 Bean
         Object beanInstanceOrFactoryBean = getSingleton(name);
 
         // 2. 【单例缓存未命中】：创建 Bean
@@ -98,7 +100,9 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
         return beanNames.toArray(new String[0]);
     }
 
+
     protected abstract Map<String, BeanDefinition> getBeanDefinitionMap();
+
 
     /**
      * 根据 Bean 定义和构造函数参数，创建指定名称的 Bean 实例。

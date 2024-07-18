@@ -5,7 +5,7 @@ import cn.learn.annotation.Component;
 import java.util.HashMap;
 import java.util.Map;
 
-@Component
+//@Component
 public class UserDao {
 
     private static final Map<String, String> hashMap = new HashMap<>();

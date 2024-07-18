@@ -1,4 +1,4 @@
-package cn.learn.aop.proxy.autoproxy;
+package cn.learn.aop.proxy;
 
 import cn.learn.aop.entity.AopProxyConfig;
 import cn.learn.aop.proxy.AopProxy;
