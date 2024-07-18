@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+ <trees>
+     <tree path="/src/main/java/cn/learn/aop/advisor" title="切面相关"/>
+    <tree path="/src/main/java/cn/learn/aop/aspect/AspectJExpressionPointcutAdvisor.java" title="切面的核心类"/>
+     <tree path="/src/main/java/cn/learn/aop/aspect/pointcut/AspectJExpressionPointcut.java"
+           title="切入点表达式包装类"/>
+     <tree path="/src/main/java/cn/learn/aop/aspect/advice/MethodAroundAdvice.java" title="环绕通知-由用户实现"
+           extension="" presentableText="" tooltipTitle="" icon="" textColor="" backgroundColor=""/>
+     <tree path="/src/main/java/cn/learn/aop/aspect/advice/MethodBeforeAdvice.java" title="前置通知-由用户实现"
+           extension="" presentableText="" tooltipTitle="" icon="" textColor="" backgroundColor=""/>
+     <tree path="/src/main/java/cn/learn/aop/invocation/ProceedingJoinPoint.java" title="目标方法包装类"/>
+     <tree path="/src/main/java/cn/learn/aop/proxy/autoproxy/ProxyCreatorProcessor.java"
+           title="实例化之前检查代理的处理器"/>
+     <tree path="/src/main/java/cn/learn/aop/aspect/interceptor/MethodAroundAdviceInterceptor.java"
+           title="环绕通知拦截器"/>
+    <tree path="/src/main/java/cn/learn/aop/aspect/interceptor/MethodBeforeAdviceInterceptor.java"
+          title="前置通知拦截器"/>
+    <tree path="/src/main/java/cn/learn/aop/aspect/advice" title="通知"/>
+    <tree path="/src/main/java/cn/learn/aop/aspect/aspector" title="切面"/>
+    <tree path="/src/main/java/cn/learn/aop/aspect/interceptor" title="通知拦截器"/>
+    <tree path="/src/main/java/cn/learn/aop/aspect/joinpoint" title="连接点"/>
+    <tree path="/src/main/java/cn/learn/aop/aspect/pointcut" title="切入点"/>
+    <tree path="/src/main/java/cn/learn/aop/entity/AopProxyConfig.java" title="AOP代理配置的包装类" extension=""
+          presentableText="" tooltipTitle="" icon="" textColor="" backgroundColor=""/>
+    <tree path="/src/main/java/cn/learn/aop/proxy/JdkDynamicAopProxy.java" title="JDK动态代理的核心实现类"/>
+    <tree path="/src/main/java/cn/learn/beanfactory/factory/AbstractAutowireCapableBeanFactory.java"
+          title="bean工厂的核心类"/>
+    <tree path="/src/main/java/cn/learn/context/impl/AbstractApplicationContext.java" title="应用上下文的核心类 🎯"
+          extension="" presentableText="" tooltipTitle="" icon="" textColor="" backgroundColor=""/>
+    <tree path="/src/main/java/cn/learn/beanfactory" title="Bean工厂"/>
+    <tree path="/src/main/java/cn/learn/beans" title="Bean对象相关的处理"/>
+    <tree path="/src/main/java/cn/learn/scan" title="Component组件的自动扫描宝"/>
+    <tree path="/src/main/java/cn/learn/core/io" title="配置的加载相关"/>
+    <tree path="/src/main/java/cn/learn/beans/processor" title="Bean对象处理器相关"/>
+    <tree path="/src/main/java/cn/learn/beanfactory/singleton" title="单例、缓存相关"/>
+    <tree path="/src/main/java/cn/learn/aop/aspect" title="切面相关"/>
+    <tree path="/src/main/java/cn/learn/aware" title="感知器"/>
+</trees>
