@@ -25,6 +25,7 @@ public class DefaultAopProxyCreateProcessor implements InstantiationAwareBeanPos
     private DefaultListableBeanFactory beanFactory;
 
     // fixme: 将普通的集合类包装成线程安全的集合的方式，并不是很优雅，可以使用 CopyOnWriteArraySet
+    // earlyProcyReference 用于记录当前bean有没有进行AOP代理的检查
     private final Set<Object> earlyProxyReferences = Collections.synchronizedSet(new HashSet<>());
 
     public DefaultAopProxyCreateProcessor(DefaultListableBeanFactory beanFactory) {
@@ -49,12 +50,13 @@ public class DefaultAopProxyCreateProcessor implements InstantiationAwareBeanPos
         this.beanFactory = (DefaultListableBeanFactory) beanFactory;
     }
 
+    // 假如当前 Bean 需要进行 AOP 代理，且当前 Bean 又被别的 Bean 依赖，那么当初始化的后置操作执行时，当前 Bean 又可以以
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (!earlyProxyReferences.contains(beanName)) {
+            earlyProxyReferences.add(beanName);
             return wrapIfNecessary(bean, beanName);
         }
-
         return bean;
     }
 
@@ -111,8 +113,11 @@ public class DefaultAopProxyCreateProcessor implements InstantiationAwareBeanPos
 
     @Override
     public Object getEarlyBeanReference(Object bean, String beanName) {
-        earlyProxyReferences.add(beanName);
-        // 尝试进行Aop代理
-        return wrapIfNecessary(bean, beanName);
+        if (!earlyProxyReferences.contains(beanName)) {
+            earlyProxyReferences.add(beanName);
+            // 尝试进行Aop代理
+            return wrapIfNecessary(bean, beanName);
+        }
+        return bean;
     }
 }

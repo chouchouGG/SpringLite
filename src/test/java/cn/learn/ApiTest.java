@@ -3,9 +3,7 @@ package cn.learn;
 import cn.learn.aop.entity.AopProxyConfig;
 import cn.learn.aop.aspect.pointcut.AspectJPointcutor;
 import cn.learn.aop.proxy.JdkDynamicAopProxy;
-import cn.learn.bean.IUserService;
-import cn.learn.bean.UserService;
-import cn.learn.bean.UserServiceInterceptor;
+import cn.learn.bean.*;
 import cn.learn.context.impl.ClassPathXmlApplicationContext;
 import cn.learn.event.CustomEvent;
 import cn.learn.home.Husband;
@@ -111,5 +109,19 @@ public class ApiTest {
         Mugou wife = applicationContext.getBean("wife", Wife.class);
         System.out.println("老公的媳妇：" + husband.queryWife());
         System.out.println("媳妇的老公：" + wife.queryHusband());
+    }
+
+    @Test
+    public void test_ab_circular() {
+        ClassPathXmlApplicationContext app = new ClassPathXmlApplicationContext("classpath:spring-ab.xml");
+        A a = app.getBean("a", A.class);
+        B b = app.getBean("b", B.class);
+
+        A a1 = app.getBean("a", A.class);
+
+        System.out.println("a: " + a);
+        System.out.println("b: " + b);
+
+        System.out.println("a1: " + a1);
     }
 }

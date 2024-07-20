@@ -2,6 +2,14 @@ package cn.learn.context;
 
 import cn.learn.exception.BeansException;
 
+/**
+ * <h1>ConfigurableApplicationContext：</h1>
+ * <p> 扩展于 ApplicationContext，它新增加了两个主要的方法： refresh()和 close()，让
+ * ApplicationContext 具有 '启动刷新' 和 '关闭应用上下文' 的能力。在应用上下文关闭的情况下调用 refresh()即可启动应用上下文，
+ * 在已经启动的状态下，调用 refresh()则清除缓存并重新装载配置信息，而调用close()则可关闭应用上下文。这些接口方法为容器的控制管理带来了便利</p>
+ *
+ * <p>原文链接：https://pdai.tech/md/spring/spring-x-framework-ioc-source-1.html</p>
+ */
 public interface ConfigurableApplicationContext extends ApplicationContext {
 
     /**

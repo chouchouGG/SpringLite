@@ -9,7 +9,7 @@ import cn.learn.annotation.Component;
  * @author: chouchouGG
  * @create: 2024-07-17 08:39
  **/
-//@Component
+@Component("b")
 public class B {
 
     @Autowired

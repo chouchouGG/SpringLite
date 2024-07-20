@@ -2,7 +2,6 @@ package cn.learn.context.impl;
 
 import cn.learn.beanfactory.ConfigurableListableBeanFactory;
 import cn.learn.beanfactory.factory.DefaultListableBeanFactory;
-import cn.learn.beans.entity.BeanDefinition;
 import cn.learn.beans.processor.BeanFactoryPostProcessor;
 import cn.learn.beans.processor.BeanPostProcessor;
 import cn.learn.beans.processor.impl.*;

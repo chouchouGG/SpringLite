@@ -2,7 +2,10 @@ package cn.learn.context.impl;
 
 import cn.learn.exception.BeansException;
 
-
+/**
+ * <h1>ClassPathXmlApplicationContext：</h1>
+ * <p>从类路径下的一个或多个xml配置文件中加载上下文定义，适用于xml配置的方式。</p>
+ */
 public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContext {
 
     private final String[] configResourcesLoadingLocations;

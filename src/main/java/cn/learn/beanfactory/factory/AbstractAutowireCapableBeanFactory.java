@@ -53,7 +53,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      */
     @Override
     protected Object createBean(String beanName, BeanDefinition beanDefinition, Object[] args) {
-        // 【实例化之前操作】，如果是FactoryBean，就需要直接返回其代理 bean 对象
+        // 【实例化之前操作】
         Object bean = resolveBeforeInstantiation(beanName, beanDefinition);
         if (null != bean) {
             return bean;
@@ -72,12 +72,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // 处理循环依赖，需要将实例化之后的Bean提前暴露出来
         if (beanDefinition.isSingleton()) {
             Object finalBean = bean;
-            // 提前暴露对象，放入到三级缓存中
+            // 【解决循环依赖的关键】提前暴露对象，放入到三级缓存中
             // 当其他 Bean 依赖当前 Bean 时，Spring 会从三级缓存中获取 ObjectFactory 并调用重写的 getObject 方法，从而获取早期 Bean 引用。
             addSingletonFactory(beanName, new ObjectFactory<Object>() {
                 @Override
                 public Object getObject() throws BeansException {
-                    return getEarlyBeanReference(beanName, beanDefinition, finalBean);
+                    return (AbstractAutowireCapableBeanFactory.this).getEarlyBeanReference(beanName, beanDefinition, finalBean);
                 }
             });
         }
@@ -103,9 +103,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // 4. 【缓存】判断 SCOPE_SINGLETON、SCOPE_PROTOTYPE，只有Bean的作用域是单例时，才缓存该单例Bean
         Object exposedObject = bean;
         if (beanDefinition.isSingleton()) {
-            // 【获取对象】
+            // 【将 Bean 由三级缓存转到二级缓存】
             exposedObject = getSingleton(beanName);
-            // 【注册对象】：这个注册操作就是把实际的对象放到'一级缓存'中，因为此时该对象已经是一个成品对象了。
+            // 【将 Bean 由二级缓存转到一级缓存】
             registerSingleton(beanName, exposedObject);
         }
         return exposedObject;
@@ -178,7 +178,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
     protected Object applyBeanPostProcessorsBeforeInstantiation(Class<?> beanClass, String beanName) {
         List<BeanPostProcessor> beanPostProcessors = getBeanPostProcessors();
-        // 循环遍历所有的处理器，执行bean实例化之前的操作（目前这一步主要进行是否需要代理的检查）
         for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
             if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
                 Object result = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessBeforeInstantiation(beanClass, beanName);
