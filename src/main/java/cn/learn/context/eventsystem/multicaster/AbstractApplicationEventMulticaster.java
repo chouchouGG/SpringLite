@@ -19,12 +19,11 @@ import java.util.Set;
  **/
 public abstract class AbstractApplicationEventMulticaster implements ApplicationEventMulticaster {
 
-    public final Set<ApplicationEventListener<ApplicationEvent>> subscribedListeners = new LinkedHashSet<>();
+    public final Set<ApplicationEventListener<?>> subscribedListeners = new LinkedHashSet<>();
 
     @Override
     public void addApplicationListener(ApplicationEventListener<?> listener) {
-        ApplicationEventListener<ApplicationEvent> applicationListener = (ApplicationEventListener<ApplicationEvent>) listener;
-        subscribedListeners.add(applicationListener);
+        subscribedListeners.add(listener);
     }
 
     @Override
@@ -36,10 +35,10 @@ public abstract class AbstractApplicationEventMulticaster implements Application
      * <p>返回一个对参数 <code>event</code> 感兴趣的监听器列表。</p>
      * <p>与当前事件 <code>event</code> 无关的监听器会被排除。</p>
      */
-    protected Collection<ApplicationEventListener<ApplicationEvent>> getInterestedListeners(ApplicationEvent event) {
-        LinkedList<ApplicationEventListener<ApplicationEvent>> listenersList = new LinkedList<>();
-        for (ApplicationEventListener<ApplicationEvent> listener : subscribedListeners) {
-            if (isIntrestedListener(listener, event)) {
+    protected Collection<ApplicationEventListener<?>> getInterestedListeners(ApplicationEvent event) {
+        LinkedList<ApplicationEventListener<?>> listenersList = new LinkedList<>();
+        for (ApplicationEventListener<?> listener : subscribedListeners) {
+            if (isInterestedListener(listener, event)) {
                 listenersList.add(listener);
             }
         }
@@ -47,11 +46,11 @@ public abstract class AbstractApplicationEventMulticaster implements Application
     }
 
     /**
-     * 判断监听器是否对该事件感兴趣
+     * 判断监听器是否对该事件感兴趣（更加监听器的泛型参数和事件的类型来确定监听器是否对事件感兴趣）
      *
      * @return 如果监听器对事件感兴趣，返回 true；否则返回 false
      */
-    protected boolean isIntrestedListener(ApplicationEventListener<ApplicationEvent> listener, ApplicationEvent event) {
+    protected boolean isInterestedListener(ApplicationEventListener<?> listener, ApplicationEvent event) {
         // 1. 获取监听器的类
         Class<? extends ApplicationEventListener> listenerClass = listener.getClass();
 
