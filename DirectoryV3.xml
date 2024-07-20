@@ -35,4 +35,5 @@
     <tree path="/src/main/java/cn/learn/beanfactory/singleton" title="单例、缓存相关"/>
     <tree path="/src/main/java/cn/learn/aop/aspect" title="切面相关"/>
     <tree path="/src/main/java/cn/learn/aware" title="感知器"/>
+    <tree path="/src/main/java/cn/learn/beanfactory/factoryBean" title="用于自定义Bean的创建逻辑"/>
 </trees>

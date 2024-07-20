@@ -1,6 +1,7 @@
 package cn.learn.beanfactory.factoryBean;
 
 /**
+ * <h1>自定义 Bean 的创建逻辑</h1>
  * FactoryBean 接口定义了一个 Spring 容器使用的工厂接口。如果一个 bean 实现了这个接口，Spring 容器不会直接将这个 bean 实例作为一个暴露的 bean，而是将其作为一个工厂来创建另一个对象。
  * @param <T>
  */
